@@ -168,8 +168,8 @@ const CATEGORIES: Category[] = [
 ];
 
 export default function Faq() {
-  // Desktop-4 renders the first category expanded with its question list (answers collapsed).
-  const [openCat, setOpenCat] = useState<number | null>(0);
+  // All categories start collapsed (desktop + mobile); user expands on click.
+  const [openCat, setOpenCat] = useState<number | null>(null);
   const [openQs, setOpenQs] = useState<Record<string, boolean>>({});
 
   return (
