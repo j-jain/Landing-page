@@ -109,7 +109,10 @@ export default function UseCases() {
               playsInline
               controls={isPlaying}
               onEnded={() => setPlaying(null)}
-              style={{ opacity: isPlaying ? 1 : 0 }}
+              style={{
+                opacity: isPlaying ? 1 : 0,
+                pointerEvents: isPlaying ? "auto" : "none",
+              }}
             />
             {!isPlaying && <img className="uc-card__poster" src={c.poster} alt="" />}
             {!isPlaying && (
