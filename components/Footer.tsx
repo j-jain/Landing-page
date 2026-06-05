@@ -69,7 +69,7 @@ export default function Footer() {
           </div>
           <div className="footer__bar">
             <span className="cp">COPYRIGHT DENSO SENSE</span>
-            <span className="yr">2025</span>
+            <span className="yr">2026</span>
           </div>
         </div>
       </div>

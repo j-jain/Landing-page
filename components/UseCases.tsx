@@ -34,6 +34,41 @@ export default function UseCases() {
     setPlaying(key);
     const v = videoRefs.current[key];
     if (!v) return;
+
+    // On touch devices play in native fullscreen so the inline video never
+    // competes with the row swipe; return to the poster when fullscreen closes.
+    const coarse =
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches;
+    if (coarse) {
+      const reset = () => {
+        try {
+          v.pause();
+        } catch {}
+        setPlaying(null);
+      };
+      const onFsChange = () => {
+        if (!document.fullscreenElement) {
+          document.removeEventListener("fullscreenchange", onFsChange);
+          reset();
+        }
+      };
+      const onMeta = () => {
+        const anyV = v as unknown as {
+          requestFullscreen?: () => Promise<void>;
+          webkitEnterFullscreen?: () => void;
+        };
+        if (anyV.requestFullscreen) {
+          document.addEventListener("fullscreenchange", onFsChange);
+          anyV.requestFullscreen().catch(() => {});
+        } else if (anyV.webkitEnterFullscreen) {
+          anyV.webkitEnterFullscreen(); // iOS Safari
+        }
+      };
+      v.addEventListener("loadedmetadata", onMeta, { once: true });
+      v.addEventListener("webkitendfullscreen", reset, { once: true });
+    }
+
     const sources = pexelsSources(id);
     let idx = 0;
     const tryPlay = () => {
