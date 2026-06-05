@@ -12,6 +12,7 @@ export default function Hero() {
   const [captcha, setCaptcha] = useState<"idle" | "loading" | "checked">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function verifyCaptcha() {
     if (captcha !== "idle") return;
@@ -22,7 +23,7 @@ export default function Hero() {
     }, 800);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (!name.trim()) next.name = "Please enter your name.";
@@ -33,7 +34,32 @@ export default function Hero() {
     if (!agree)
       next.agree = "Please accept the Privacy Policy and Terms of Service.";
     setErrors(next);
-    if (Object.keys(next).length === 0) setSubmitted(true);
+    if (Object.keys(next).length > 0) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim() }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setErrors((x) => ({
+          ...x,
+          submit: body?.error || "Something went wrong. Please try again.",
+        }));
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setErrors((x) => ({
+        ...x,
+        submit: "Network error. Please try again.",
+      }));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -187,9 +213,14 @@ export default function Hero() {
                 </small>
               </div>
             </div>
-            <button className="btn-demo" type="submit">
-              Book a Demo
+            <button className="btn-demo" type="submit" disabled={submitting}>
+              {submitting ? "Sending…" : "Book a Demo"}
             </button>
+            {errors.submit && (
+              <small className="err show" style={{ position: "static", marginTop: 4 }}>
+                {errors.submit}
+              </small>
+            )}
           </>
         ) : (
           <div className="form__success">
