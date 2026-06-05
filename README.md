@@ -35,5 +35,18 @@ Intended to deploy to **Microsoft Azure** (all production runtime services on Az
 
 Connecting the repo in the Azure portal auto-generates the GitHub Actions deploy workflow.
 
-## Local note
-Keep the working copy **outside OneDrive-synced folders** — OneDrive's file syncing makes the Next.js dev server reload-loop and can corrupt the `.next` build. This copy lives at `C:\dev\denso-next`.
+## Local development (important)
+Run the project **directly from `C:\dev\denso-next`** — open *that* folder in your editor/terminal:
+
+```bash
+cd C:\dev\denso-next
+npm install
+npm run dev
+```
+
+Do **not** run it through the OneDrive path (`…\OneDrive\Desktop\Figma\Denso\denso-next`, which is a
+junction to this folder). Reasons:
+- **OneDrive syncing** of a Next.js project makes the dev server reload-loop and can corrupt the
+  `.next` build (missing-chunk 500s). Keeping the code outside the synced tree avoids that.
+- The Next.js **file-watcher doesn't reliably follow the junction**, so editing via the OneDrive
+  path won't hot-reload. Working in `C:\dev\denso-next` directly gives proper HMR.
