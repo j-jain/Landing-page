@@ -21,62 +21,92 @@ const CARDS: Card[] = [
   { poster: "/assets/imgImage6.png", cap: "Clear Reports. Faster Decisions.", clip: "use-case-6.mp4" },
 ];
 
+// Devices with a real hovering pointer (desktop) play on hover; touch devices
+// fall back to tap-to-play (no hover exists there).
+const finePointer = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
 export default function UseCases() {
   const [playing, setPlaying] = useState<string | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
   const marqueeRef = useRef<HTMLDivElement>(null);
   useMarqueeScroll(marqueeRef, { direction: 1, paused: playing !== null });
 
-  function play(key: string, clip: string) {
-    // stop any other playing video
+  function pauseOthers(except: string) {
     Object.entries(videoRefs.current).forEach(([k, v]) => {
-      if (k !== key && v) v.pause();
-    });
-    setPlaying(key);
-    const v = videoRefs.current[key];
-    if (!v) return;
-
-    // On touch devices play in native fullscreen so the inline video never
-    // competes with the row swipe; return to the poster when fullscreen closes.
-    const coarse =
-      typeof window !== "undefined" &&
-      window.matchMedia("(pointer: coarse)").matches;
-    if (coarse) {
-      const reset = () => {
+      if (k !== except && v) {
         try {
           v.pause();
         } catch {}
-        setPlaying(null);
-      };
-      const onFsChange = () => {
-        if (!document.fullscreenElement) {
-          document.removeEventListener("fullscreenchange", onFsChange);
-          reset();
-        }
-      };
-      const onMeta = () => {
-        const anyV = v as unknown as {
-          requestFullscreen?: () => Promise<void>;
-          webkitEnterFullscreen?: () => void;
-        };
-        if (anyV.requestFullscreen) {
-          document.addEventListener("fullscreenchange", onFsChange);
-          anyV.requestFullscreen().catch(() => {});
-        } else if (anyV.webkitEnterFullscreen) {
-          anyV.webkitEnterFullscreen(); // iOS Safari
-        }
-      };
-      v.addEventListener("loadedmetadata", onMeta, { once: true });
-      v.addEventListener("webkitendfullscreen", reset, { once: true });
-    }
+      }
+    });
+  }
 
-    v.src = clipUrl(clip);
-    v.load();
-    const onErr = () => {
-      v.removeEventListener("error", onErr);
+  // Desktop: play muted + looping while the pointer is over the card.
+  function startHover(key: string, clip: string) {
+    if (!finePointer()) return; // touch uses tap-to-play
+    const v = videoRefs.current[key];
+    if (!v) return;
+    pauseOthers(key);
+    if (!v.getAttribute("src")) v.src = clipUrl(clip);
+    v.muted = true;
+    v.loop = true;
+    setPlaying(key);
+    const p = v.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  }
+
+  function stopHover(key: string) {
+    if (!finePointer()) return;
+    const v = videoRefs.current[key];
+    if (v) {
+      try {
+        v.pause();
+        v.currentTime = 0;
+      } catch {}
+    }
+    setPlaying((cur) => (cur === key ? null : cur));
+  }
+
+  // Touch: tap the play button -> native fullscreen playback with sound.
+  function tapPlay(key: string, clip: string) {
+    const v = videoRefs.current[key];
+    if (!v) return;
+    pauseOthers(key);
+    setPlaying(key);
+    v.muted = false;
+    v.loop = false;
+
+    const reset = () => {
+      try {
+        v.pause();
+      } catch {}
       setPlaying(null);
     };
-    v.addEventListener("error", onErr, { once: true });
+    const onFsChange = () => {
+      if (!document.fullscreenElement) {
+        document.removeEventListener("fullscreenchange", onFsChange);
+        reset();
+      }
+    };
+    const onMeta = () => {
+      const anyV = v as unknown as {
+        requestFullscreen?: () => Promise<void>;
+        webkitEnterFullscreen?: () => void;
+      };
+      if (anyV.requestFullscreen) {
+        document.addEventListener("fullscreenchange", onFsChange);
+        anyV.requestFullscreen().catch(() => {});
+      } else if (anyV.webkitEnterFullscreen) {
+        anyV.webkitEnterFullscreen(); // iOS Safari
+      }
+    };
+
+    if (!v.getAttribute("src")) v.src = clipUrl(clip);
+    v.addEventListener("loadedmetadata", onMeta, { once: true });
+    v.addEventListener("webkitendfullscreen", reset, { once: true });
+    v.load();
     const p = v.play();
     if (p && typeof p.catch === "function") p.catch(() => {});
   }
@@ -87,18 +117,22 @@ export default function UseCases() {
       const isPlaying = playing === key;
       return (
         <div className="uc-card" key={key} aria-hidden={ariaHidden}>
-          <div className="uc-card__img">
+          <div
+            className="uc-card__img"
+            onMouseEnter={() => startHover(key, c.clip)}
+            onMouseLeave={() => stopHover(key)}
+          >
             <video
               ref={(el) => {
                 videoRefs.current[key] = el;
               }}
               className="uc-card__video"
               playsInline
-              controls={isPlaying}
+              preload="none"
               onEnded={() => setPlaying(null)}
               style={{
                 opacity: isPlaying ? 1 : 0,
-                pointerEvents: isPlaying ? "auto" : "none",
+                pointerEvents: "none",
               }}
             />
             {!isPlaying && <img className="uc-card__poster" src={c.poster} alt="" />}
@@ -108,7 +142,7 @@ export default function UseCases() {
                 type="button"
                 aria-label="Play video"
                 tabIndex={ariaHidden ? -1 : 0}
-                onClick={() => play(key, c.clip)}
+                onClick={() => tapPlay(key, c.clip)}
               >
                 <img className="tri" src="/assets/imgBoxiconsPlayFilled.svg" alt="" />
               </button>

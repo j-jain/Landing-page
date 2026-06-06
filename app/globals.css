@@ -649,6 +649,12 @@ img {
 .uc-card.is-playing .uc-card__play {
   display: none;
 }
+/* Desktop plays on hover, so the tap target is only needed on touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .uc-card__play {
+    display: none;
+  }
+}
 .uc-card__play .tri {
   width: 35px;
   height: 35px;
