@@ -52,6 +52,7 @@ export default function UseCases() {
     if (!v.getAttribute("src")) v.src = clipUrl(clip);
     v.muted = true;
     v.loop = true;
+    v.controls = false; // hover preview has no controls
     setPlaying(key);
     const p = v.play();
     if (p && typeof p.catch === "function") p.catch(() => {});
@@ -69,44 +70,17 @@ export default function UseCases() {
     setPlaying((cur) => (cur === key ? null : cur));
   }
 
-  // Touch: tap the play button -> native fullscreen playback with sound.
+  // Touch: tap the play button -> play INLINE (not fullscreen) with sound +
+  // native controls. `playsInline` on the <video> keeps iOS from going fullscreen.
   function tapPlay(key: string, clip: string) {
     const v = videoRefs.current[key];
     if (!v) return;
     pauseOthers(key);
-    setPlaying(key);
+    if (!v.getAttribute("src")) v.src = clipUrl(clip);
     v.muted = false;
     v.loop = false;
-
-    const reset = () => {
-      try {
-        v.pause();
-      } catch {}
-      setPlaying(null);
-    };
-    const onFsChange = () => {
-      if (!document.fullscreenElement) {
-        document.removeEventListener("fullscreenchange", onFsChange);
-        reset();
-      }
-    };
-    const onMeta = () => {
-      const anyV = v as unknown as {
-        requestFullscreen?: () => Promise<void>;
-        webkitEnterFullscreen?: () => void;
-      };
-      if (anyV.requestFullscreen) {
-        document.addEventListener("fullscreenchange", onFsChange);
-        anyV.requestFullscreen().catch(() => {});
-      } else if (anyV.webkitEnterFullscreen) {
-        anyV.webkitEnterFullscreen(); // iOS Safari
-      }
-    };
-
-    if (!v.getAttribute("src")) v.src = clipUrl(clip);
-    v.addEventListener("loadedmetadata", onMeta, { once: true });
-    v.addEventListener("webkitendfullscreen", reset, { once: true });
-    v.load();
+    v.controls = true; // let the viewer pause/scrub inline
+    setPlaying(key);
     const p = v.play();
     if (p && typeof p.catch === "function") p.catch(() => {});
   }
@@ -132,7 +106,7 @@ export default function UseCases() {
               onEnded={() => setPlaying(null)}
               style={{
                 opacity: isPlaying ? 1 : 0,
-                pointerEvents: "none",
+                pointerEvents: isPlaying ? "auto" : "none",
               }}
             />
             {!isPlaying && <img className="uc-card__poster" src={c.poster} alt="" />}

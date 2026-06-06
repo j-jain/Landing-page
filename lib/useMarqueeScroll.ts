@@ -63,10 +63,19 @@ export function useMarqueeScroll(
         !pausedRef.current &&
         !reduce.matches &&
         now() - lastInteract > IDLE;
-      pos = auto ? pos + direction * speed : el.scrollLeft;
-      if (pos >= w) pos -= w;
-      else if (pos < 0) pos += w;
-      el.scrollLeft = pos;
+      if (auto) {
+        pos += direction * speed;
+        if (pos >= w) pos -= w;
+        else if (pos < 0) pos += w;
+        el.scrollLeft = pos;
+      } else {
+        // Follow native scrolling — do NOT write scrollLeft here, or iOS
+        // momentum/flick scrolling gets killed. Wrapping by one (identical)
+        // copy width when auto resumes is visually seamless.
+        pos = el.scrollLeft;
+        if (pos >= w) pos -= w;
+        else if (pos < 0) pos += w;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

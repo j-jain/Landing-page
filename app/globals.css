@@ -780,10 +780,17 @@ img {
   transition: opacity 0.35s ease, visibility 0.35s ease;
   overflow-y: auto;
 }
-.rtbs-card__img:hover .rtbs-card__reveal,
+/* tap-open (all devices) — and hover only where a real hover exists (desktop),
+   so a tap on touch doesn't get stuck in :hover and block the 2nd tap. */
 .rtbs-card__img.is-open .rtbs-card__reveal {
   opacity: 1;
   visibility: visible;
+}
+@media (hover: hover) {
+  .rtbs-card__img:hover .rtbs-card__reveal {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 .rtbs-card__reveal p {
   font-family: var(--font-proxima);
@@ -865,7 +872,7 @@ img {
   z-index: 0;
   transition: opacity 0.35s ease, visibility 0.35s ease;
 }
-.testi-card:hover .testi-card__media {
+.testi-card.is-open .testi-card__media {
   opacity: 1;
   visibility: visible;
 }
@@ -893,7 +900,7 @@ img {
   );
   pointer-events: none;
 }
-.testi-card:hover .testi-card__media::after {
+.testi-card.is-open .testi-card__media::after {
   opacity: 1;
 }
 .testi-card__content {
@@ -908,7 +915,7 @@ img {
   background: #fff;
   transition: background 0.35s ease;
 }
-.testi-card:hover .testi-card__content {
+.testi-card.is-open .testi-card__content {
   background: transparent;
 }
 .testi-card__avatar {
@@ -942,7 +949,7 @@ img {
   color: #888;
   margin: 0;
 }
-.testi-card:hover .testi-card__quote {
+.testi-card.is-open .testi-card__quote {
   opacity: 0;
   visibility: hidden;
 }
@@ -968,9 +975,31 @@ img {
   margin: 0;
   transition: color 0.35s ease;
 }
-.testi-card:hover .testi-card__name,
-.testi-card:hover .testi-card__role {
+.testi-card.is-open .testi-card__name,
+.testi-card.is-open .testi-card__role {
   color: #fff;
+}
+/* Desktop hover mirrors the tap-open state. Gated to hover-capable devices so a
+   tap on touch never gets stuck in :hover (which would block the 2nd tap). */
+@media (hover: hover) {
+  .testi-card:hover .testi-card__media {
+    opacity: 1;
+    visibility: visible;
+  }
+  .testi-card:hover .testi-card__media::after {
+    opacity: 1;
+  }
+  .testi-card:hover .testi-card__content {
+    background: transparent;
+  }
+  .testi-card:hover .testi-card__quote {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .testi-card:hover .testi-card__name,
+  .testi-card:hover .testi-card__role {
+    color: #fff;
+  }
 }
 
 /* desktop: 5 equal-width slides (width set by Swiper slidesPerView: 5) */
@@ -1939,6 +1968,7 @@ img {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   touch-action: pan-x pan-y;
   cursor: grab;
   scrollbar-width: none;
@@ -1957,6 +1987,7 @@ img {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   touch-action: pan-x pan-y;
   cursor: grab;
   scrollbar-width: none;

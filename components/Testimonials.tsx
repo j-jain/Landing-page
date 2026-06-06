@@ -1,7 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useMarqueeScroll } from "@/lib/useMarqueeScroll";
+
+// Touch devices have no hover, so they toggle the photo/text by tapping the card.
+// Desktop keeps pure hover (this returns true there, so the tap toggle is skipped).
+const finePointer = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 type Testimonial = {
   name: string;
@@ -58,9 +64,26 @@ const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
-function TCard({ t, ariaHidden }: { t: Testimonial; ariaHidden: boolean }) {
+function TCard({
+  t,
+  ariaHidden,
+  open,
+  onToggle,
+}: {
+  t: Testimonial;
+  ariaHidden: boolean;
+  open: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <article className="testi-card" aria-hidden={ariaHidden}>
+    <article
+      className={`testi-card${open ? " is-open" : ""}`}
+      aria-hidden={ariaHidden}
+      onClick={() => {
+        // touch only — desktop reveals on hover and ignores taps
+        if (!finePointer()) onToggle();
+      }}
+    >
       <div className="testi-card__inner">
         <div className="testi-card__media">
           <img className="testi-card__hover-img" src={t.photo} alt="" />
@@ -84,12 +107,24 @@ function TCard({ t, ariaHidden }: { t: Testimonial; ariaHidden: boolean }) {
 
 export default function Testimonials() {
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   useMarqueeScroll(marqueeRef, { direction: -1 });
 
   const render = (copy: number, hidden: boolean) =>
-    TESTIMONIALS.map((t, i) => (
-      <TCard key={`${copy}-${i}`} t={t} ariaHidden={hidden} />
-    ));
+    TESTIMONIALS.map((t, i) => {
+      const cardKey = `${copy}-${i}`;
+      return (
+        <TCard
+          key={cardKey}
+          t={t}
+          ariaHidden={hidden}
+          open={openKey === cardKey}
+          onToggle={() =>
+            setOpenKey((cur) => (cur === cardKey ? null : cardKey))
+          }
+        />
+      );
+    });
 
   return (
     <section className="testi">
