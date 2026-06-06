@@ -729,7 +729,7 @@ img {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
 }
@@ -741,51 +741,7 @@ img {
   text-align: right;
   line-height: 1;
 }
-.rtbs-card__more {
-  width: 286px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-items: center;
-}
-.rtbs-card__more .ln {
-  width: 100%;
-  height: 1px;
-  background: var(--grad-linear);
-}
-.rtbs-card__more .row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.rtbs-card__more .row:hover {
-  opacity: 0.7;
-}
-.rtbs-card__more .row:hover img {
-  transform: translateX(4px);
-}
-.rtbs-card__more .row img {
-  transition: transform 0.15s;
-}
-.rtbs-card__more .row span {
-  font-family: var(--font-denso);
-  font-weight: 300;
-  font-size: 18px;
-  color: #f1f2f2;
-}
-.rtbs-card__more .row img {
-  width: 16.89px;
-  height: 16.89px;
-}
+/* (Know More button removed — body copy now revealed on hover/tap via .rtbs-card__reveal) */
 .rtbs-card__img {
   width: 421px;
   height: 500px;
@@ -800,6 +756,36 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.rtbs-card__img {
+  cursor: pointer;
+}
+/* hover/tap reveal of the body copy over the image (replaces "Know More") */
+.rtbs-card__reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  padding: 26px 28px;
+  background: linear-gradient(180deg, rgba(10, 3, 4, 0.92), rgba(10, 3, 4, 0.82));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  overflow-y: auto;
+}
+.rtbs-card__img:hover .rtbs-card__reveal,
+.rtbs-card__img.is-open .rtbs-card__reveal {
+  opacity: 1;
+  visibility: visible;
+}
+.rtbs-card__reveal p {
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #f1f2f2;
+  margin: 0;
 }
 
 /* =========================================================
@@ -1773,10 +1759,6 @@ img {
   .rtbs-card__heading {
     font-size: clamp(26px, 6vw, 36px);
   }
-  .rtbs-card__more {
-    width: 100%;
-    max-width: 286px;
-  }
 }
 
 /* ---- CTA button: full-width pill on narrow screens ---- */
@@ -2071,7 +2053,6 @@ img {
     align-items: flex-end;
   }
   .rtbs-card__heading { font-size: clamp(24px, 6vw, 36px); }
-  .rtbs-card__more { width: 100%; max-width: 286px; }
 }
 
 /* Use Cases & Testimonials: smaller cards so they fit a phone */
