@@ -5,19 +5,20 @@ import { useMarqueeScroll } from "@/lib/useMarqueeScroll";
 
 type Card = { poster: string; cap: string; clip: string };
 
-// Clips are served locally from /public/videos. For production, set
-// NEXT_PUBLIC_MEDIA_BASE_URL to an Azure Blob/Front Door (CDN) base and the same
-// paths are served from there instead — no code change needed.
+// Local dev: clips serve from /public/videos. In production, set
+// NEXT_PUBLIC_MEDIA_BASE_URL to an external host (GitHub Release assets, or a
+// CDN/Blob) where the files live flat — clips resolve to <base>/<file>.
 const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").replace(/\/$/, "");
-const clipUrl = (path: string) => `${MEDIA_BASE}${path}`;
+const clipUrl = (file: string) =>
+  MEDIA_BASE ? `${MEDIA_BASE}/${file}` : `/videos/${file}`;
 
 const CARDS: Card[] = [
-  { poster: "/assets/imgImage3.png", cap: "Multiple Systems. One Tool.", clip: "/videos/use-case-1.mp4" },
-  { poster: "/assets/imgImage4.png", cap: "Pay Per Use", clip: "/videos/use-case-2.mp4" },
-  { poster: "/assets/imgImage5.png", cap: "Expert-Level Diagnostics. Made Simple.", clip: "/videos/use-case-3.mp4" },
-  { poster: "/assets/imgImage6.png", cap: "Diagnose Faster. Keep Trucks Moving.", clip: "/videos/use-case-4.mp4" },
-  { poster: "/assets/imgImage7.png", cap: "Expert Diagnostics. Without the Learning Curve.", clip: "/videos/use-case-5.mp4" },
-  { poster: "/assets/imgImage6.png", cap: "Clear Reports. Faster Decisions.", clip: "/videos/use-case-6.mp4" },
+  { poster: "/assets/imgImage3.png", cap: "Multiple Systems. One Tool.", clip: "use-case-1.mp4" },
+  { poster: "/assets/imgImage4.png", cap: "Pay Per Use", clip: "use-case-2.mp4" },
+  { poster: "/assets/imgImage5.png", cap: "Expert-Level Diagnostics. Made Simple.", clip: "use-case-3.mp4" },
+  { poster: "/assets/imgImage6.png", cap: "Diagnose Faster. Keep Trucks Moving.", clip: "use-case-4.mp4" },
+  { poster: "/assets/imgImage7.png", cap: "Expert Diagnostics. Without the Learning Curve.", clip: "use-case-5.mp4" },
+  { poster: "/assets/imgImage6.png", cap: "Clear Reports. Faster Decisions.", clip: "use-case-6.mp4" },
 ];
 
 export default function UseCases() {
