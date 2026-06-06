@@ -22,6 +22,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# large media — served from an external host (Cloudflare R2), not committed
+/public/videos/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

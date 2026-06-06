@@ -1,0 +1,64 @@
+DENSO SENSE — CURRENT STATUS & NEXT STEPS
+=========================================
+Snapshot of where the project stands and what is still open.
+
+DONE & ON main (https://github.com/j-jain/Landing-page)
+-------------------------------------------------------
+- Full Next.js 14 site matching Figma "Desktop - 4": all 8 sections, pixel-faithful on desktop.
+- Animations: RTBS scroll-pinned pan (desktop) / swipe carousel (mobile); Use Cases &
+  Testimonials hybrid auto+manual scroll rows; testimonial hover-video; Use Cases tap/click play.
+- Responsive: desktop unchanged; mobile reflow (hero stacks, RTBS swipes, rows swipe, FAQ table
+  scrolls). Mobile vertical+horizontal scrolling works over videos (touch-action pan-x pan-y).
+- Book-a-Demo form -> POST /api/lead (validation; stub for real wiring).
+- CI build check; footer year 2026; FAQ starts fully collapsed.
+- Project relocated to C:\dev\denso-next (out of OneDrive) + junction at the old path.
+
+IN PROGRESS / WAITING
+---------------------
+- VERCEL (interim preview/staging): repo is ready to import. If already imported, it auto-deploys
+  on each push to main. ACTION: import at vercel.com (Add New -> Project -> j-jain/Landing-page)
+  if not done; then share the URL to verify the latest is live.
+- AZURE BLOB VIDEOS: still using Pexels placeholder clips (a non-Azure runtime dependency).
+  Waiting on the real DENSO videos to be uploaded to Azure Blob (Central India), ideally behind
+  Front Door. THEN swap the URLs in components/UseCases.tsx and components/Testimonials.tsx.
+
+OPEN TODOs (code)
+-----------------
+- app/api/lead/route.ts is a STUB: it validates + logs + returns ok. To finish for production:
+    * Persist the lead (Azure Cosmos DB serverless or Table Storage, Central India).
+    * Send email via Azure Communication Services (sales inbox + applicant).
+    * Read secrets from env / Azure Key Vault.
+- "I'm not a robot" is a CSS mock (no real bot protection). For production use Azure-native /
+  Front Door WAF rather than Google reCAPTCHA (which would need a DENSO exception).
+- Testimonials & Use Cases use placeholder media (Pexels / a baked screenshot poster). Replace
+  with licensed DENSO footage/posters.
+- "click here" link in the Diagnostics FAQ answer points to "#": wire to the real coverage page.
+
+AZURE PRODUCTION ARCHITECTURE (proposed; DENSO mandate = all runtime on Azure)
+------------------------------------------------------------------------------
+- Hosting: Azure App Service (Linux, Node 20) OR Azure Container Apps (full Next.js parity with
+  Vercel; the /api/lead route works as-is). [Azure Static Web Apps is possible but would require
+  static export + moving the API into an Azure Function.]
+- Edge/security: Azure Front Door (Premium for WAF) — CDN, TLS, routing, DDoS.
+- Media: Azure Blob Storage (Hot) for videos/posters, served via Front Door.
+- Data: Azure Cosmos DB (serverless) or Table Storage for leads.
+- Email: Azure Communication Services (Email).
+- Secrets: Azure Key Vault. Monitoring: Application Insights + Log Analytics.
+- DNS: Azure DNS. Region: Central India (data residency for lead PII).
+- CI/CD: GitHub Actions / Azure Pipelines -> the chosen Azure host.
+- COMPLIANCE: Vercel is NON-Azure -> treat it as preview/staging only; production must be Azure.
+  The Pexels videos are the one non-Azure runtime dependency and are resolved by the Blob migration
+  (no exception needed once done).
+
+HOW TO RUN / SHIP
+-----------------
+- Local dev:  cd C:\dev\denso-next  &&  npm run dev     (do NOT use the OneDrive path)
+- Build:      npm run build         (then npm run start to serve the production build)
+- Deploy:     push to main -> connected host auto-redeploys.
+
+WHEN PICKING THIS BACK UP, START HERE
+-------------------------------------
+1. Get the Vercel preview URL up and confirm the latest commit is live.
+2. When the Azure Blob video URLs arrive, swap them into UseCases.tsx / Testimonials.tsx, push.
+3. Stand up the Azure host (App Service/Container Apps) + Front Door + Blob; finish /api/lead
+   (Cosmos/Table + ACS email); add the Azure deploy workflow.

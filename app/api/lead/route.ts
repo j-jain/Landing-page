@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export const runtime = "nodejs";
 // Avoid static optimization — this is a dynamic endpoint.
@@ -10,6 +11,7 @@ type LeadPayload = {
   name?: string;
   email?: string;
   phone?: string;
+  recaptchaToken?: string;
 };
 
 export async function POST(req: Request) {
@@ -29,6 +31,13 @@ export async function POST(req: Request) {
   }
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ ok: false, error: "A valid work email is required." }, { status: 422 });
+  }
+
+  // Verify the reCAPTCHA token (no-op bypass when RECAPTCHA_SECRET_KEY is unset).
+  const remoteIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+  const captcha = await verifyRecaptcha(data.recaptchaToken, remoteIp);
+  if (!captcha.ok) {
+    return NextResponse.json({ ok: false, error: captcha.error }, { status: 422 });
   }
 
   // TODO (Azure production):

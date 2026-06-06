@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Recaptcha, { type RecaptchaHandle } from "@/components/Recaptcha";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -9,19 +10,11 @@ export default function Hero() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [agree, setAgree] = useState(true);
-  const [captcha, setCaptcha] = useState<"idle" | "loading" | "checked">("idle");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<RecaptchaHandle>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  function verifyCaptcha() {
-    if (captcha !== "idle") return;
-    setCaptcha("loading");
-    setTimeout(() => {
-      setCaptcha("checked");
-      setErrors((e) => ({ ...e, captcha: "" }));
-    }, 800);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +22,7 @@ export default function Hero() {
     if (!name.trim()) next.name = "Please enter your name.";
     if (!EMAIL_RE.test(email.trim()))
       next.email = "Please enter a valid email address.";
-    if (captcha !== "checked")
+    if (!captchaToken)
       next.captcha = "Please confirm you are not a robot.";
     if (!agree)
       next.agree = "Please accept the Privacy Policy and Terms of Service.";
@@ -41,7 +34,12 @@ export default function Hero() {
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          recaptchaToken: captchaToken,
+        }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -59,6 +57,9 @@ export default function Hero() {
       }));
     } finally {
       setSubmitting(false);
+      // reCAPTCHA tokens are single-use; clear it so a retry re-verifies.
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
     }
   }
 
@@ -162,29 +163,14 @@ export default function Hero() {
               </div>
 
               <div className="errwrap">
-                <div
-                  className={`captcha${captcha === "loading" ? " is-loading" : ""}${
-                    captcha === "checked" ? " is-checked" : ""
-                  }`}
-                  role="checkbox"
-                  aria-checked={captcha === "checked"}
-                  tabIndex={0}
-                  onClick={verifyCaptcha}
-                  onKeyDown={(e) => {
-                    if (e.key === " " || e.key === "Enter") {
-                      e.preventDefault();
-                      verifyCaptcha();
-                    }
+                <Recaptcha
+                  ref={recaptchaRef}
+                  onChange={(t) => {
+                    setCaptchaToken(t);
+                    if (t && errors.captcha)
+                      setErrors((x) => ({ ...x, captcha: "" }));
                   }}
-                >
-                  <span className="cap-box" aria-hidden="true" />
-                  <span className="lbl">I&rsquo;m not a robot</span>
-                  <span className="cap-brand" aria-hidden="true">
-                    <span className="cap-brand__mark" />
-                    <span className="cap-brand__name">reCAPTCHA</span>
-                    <span className="cap-brand__links">Privacy · Terms</span>
-                  </span>
-                </div>
+                />
                 <small className={`err${errors.captcha ? " show" : ""}`}>
                   {errors.captcha}
                 </small>

@@ -1,0 +1,89 @@
+DENSO SENSE — CHANGELOG (what was built / changed)
+==================================================
+Listed roughly in the order it happened. Newest milestones are at the bottom.
+
+1. INITIAL BUILD (from the Figma "Copy" file, node 1183:1560)
+   - Scaffolded a Next.js 14 app (App Router, TypeScript, React 18) in "denso-next".
+   - Ported the existing plain-HTML reference (index.html / styles.css / app.js) into
+     React components + one global stylesheet (app/globals.css):
+       * CSS custom properties (colors, the multi-stop red/black gradients), @font-face
+         for the DENSO + Proxima Nova fonts (self-hosted in /public/fonts).
+   - Built one component per section: Navbar, Hero (+ Book-a-Demo form), RTBS cards,
+     Use Cases, Testimonials, CTA band, FAQ (accordion), Footer.
+   - Copied all images/SVGs into /public/assets; downloaded exact Figma assets where the
+     design differed.
+   - Verified each section against Figma screenshots; form/accordion/carousels working.
+
+2. SWITCHED TO THE AUTHORITATIVE DESIGN ("Desktop - 4", node 1240:1759)
+   - Section ORDER corrected: Hero -> Use Cases -> RTBS -> Testimonials -> CTA -> FAQ -> Footer
+     (Use Cases moved above RTBS).
+   - Hero copy reverted to the real design: kicker "Stop guessing. Start earning." +
+     headline "The Future of Smarter Vehicle Diagnosis is Here".
+   - Use Cases cards: poster + caption-below layout ("Multiple Systems. One Tool.", etc.).
+   - Footer heading bumped to 103px (desktop).
+   - Testimonials REDESIGNED to 240x400 rounded image cards (was a quote/avatar card).
+
+3. PROTOTYPE ANIMATIONS
+   - RTBS: scroll-pinned horizontal pan (sticky section; the 3-card track translateX as you
+     scroll; respects prefers-reduced-motion).
+   - Use Cases + Testimonials: continuous auto-scroll "marquee" rows.
+   - Testimonials: hover reveals a looping muted video over the poster (desktop).
+   - Use Cases: play button loads a (Pexels) video.
+
+4. VIDEO PLAYBACK FIX
+   - The constructed "videos.pexels.com/video-files/{id}/{id}-...mp4" URLs return 403
+     (the file id != the video-page id). Switched to "pexels.com/download/video/{id}/",
+     which 302-redirects to the real CDN file. Video now loads on play / hover.
+
+5. SCROLL BUG FIXES (desktop)
+   - RTBS track was collapsing: it was a flex child of the flex pin and shrank. Fixed with
+     "flex: 0 0 auto; width: max-content" on the track + cards, so the pan distance is real.
+   - WHOLE-PAGE scroll was clamped (couldn't reach Testimonials/CTA/FAQ/Footer): ".canvas"
+     had "overflow-x: hidden", which forces "overflow-y: auto" and made .canvas its own
+     scroll container, conflicting with the sticky pin. Changed to "overflow-x: clip"
+     (clips horizontally WITHOUT creating a scroll container). Added "overflow-anchor: none".
+
+6. HYBRID AUTO + MANUAL SCROLL (Use Cases & Testimonials)
+   - Replaced the CSS-keyframe marquees with a JS hook: lib/useMarqueeScroll.ts.
+     * requestAnimationFrame auto-advance with seamless wrap (two copies of the items).
+     * Pauses on hover and on user interaction (wheel / touch / mouse-drag); resumes ~1.2s
+       after the last interaction.
+     * Mouse drag-to-scroll (overflow doesn't drag with a mouse) with a 5px threshold so a
+       click on the play button is not swallowed by a drag.
+     * Respects prefers-reduced-motion.
+
+7. FULL MOBILE LAYOUT (desktop >=1280 left unchanged)
+   - RTBS becomes a horizontal SWIPE CAROUSEL on <=1024px (pin disabled in JS; cards reflow
+     to a column at ~86vw with scroll-snap).
+   - Use Cases / Testimonials: smaller cards on phones; rows swipe.
+   - FAQ system-requirements table scrolls horizontally on narrow screens.
+   - Added explicit viewport export in app/layout.tsx.
+
+8. LEAD API + CI
+   - Added app/api/lead/route.ts (POST, server-side validation; stubbed for the Azure
+     email/datastore wiring). Wired the Book-a-Demo form to POST to it (submitting/error states).
+   - Added .github/workflows/ci.yml (npm ci + next build on push/PR).
+   - Kept it a FULL Next.js app (NOT static export) so the API route runs on Vercel and on
+     Azure App Service / Container Apps alike.
+
+9. GITHUB
+   - Initialized git, pushed to https://github.com/j-jain/Landing-page (branch main, private).
+
+10. SMALL CONTENT/UX CHANGES
+   - Footer copyright year 2025 -> 2026.
+   - FAQ now starts FULLY COLLAPSED on desktop + mobile (default openCat = null;
+     "Purchase & Licensing" no longer auto-open).
+
+11. MOBILE VIDEO-SCROLL FIX (two iterations)
+   - Attempt 1: pointer-events:none on testimonial hover layers; fullscreen play on touch;
+     touch-action:pan-x on rows/cards/videos.
+   - Problem: "touch-action: pan-x" allows ONLY horizontal panning and DISABLES vertical, so a
+     finger on a row/video froze the whole page (couldn't scroll vertically at all).
+   - Attempt 2 (current): touch-action "pan-x pan-y" everywhere (vertical swipe scrolls the
+     page, horizontal swipe scrolls the row); idle Use Cases inline <video> set to
+     pointer-events:none; tap-to-play opens fullscreen on touch devices.
+
+12. INFRA / ENVIRONMENT
+   - Moved the project out of OneDrive to C:\dev\denso-next (OneDrive was breaking dev/build);
+     left a directory junction at the old OneDrive path so tooling paths still resolve.
+   - Proposed the full Azure production architecture (see 03-CURRENT-STATUS-AND-NEXT-STEPS.txt).

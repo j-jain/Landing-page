@@ -1,0 +1,27 @@
+DENSO SENSE — PROJECT DOCS INDEX
+================================
+
+This folder is a plain-text knowledge base for the DENSO Sense marketing site
+(Next.js recreation of the Figma "Desktop - 4" design).
+
+FILES
+-----
+00-INDEX.txt ........................ this file
+01-CHANGELOG.txt .................... everything that was built/changed, in order
+02-BUILD-MANUAL-AND-CHECKLIST.txt ... how to do a project like this again (playbook + to-do list)
+03-CURRENT-STATUS-AND-NEXT-STEPS.txt  what is done, what is in progress, what is next
+04-MISTAKES-AND-LESSONS.txt ......... bugs hit, root causes, fixes, and rules to avoid them
+
+QUICK FACTS
+-----------
+- Project (Next.js app):  C:\dev\denso-next      (run dev/build HERE — not via OneDrive)
+- Git repo:               https://github.com/j-jain/Landing-page  (branch: main)
+- Stack:                  Next.js 14 (App Router) + React 18 + TypeScript + global CSS
+- Design source of truth: Figma file EYklwTaYp8uNPg8nZBn0pm, node 1240:1759 ("Desktop - 4")
+- Interim host:           Vercel (preview/staging)
+- Production host (target):Microsoft Azure (per DENSO mandate — all runtime on Azure)
+
+GOLDEN RULE LEARNED THE HARD WAY
+--------------------------------
+Never keep a Next.js project inside a OneDrive/Dropbox-synced folder. It breaks the dev
+server (reload loop) and corrupts the build (.next). See 04-MISTAKES-AND-LESSONS.txt.

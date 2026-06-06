@@ -3,22 +3,22 @@
 import { useRef, useState } from "react";
 import { useMarqueeScroll } from "@/lib/useMarqueeScroll";
 
-type Card = { poster: string; cap: string; video: string };
+type Card = { poster: string; cap: string; clip: string };
+
+// Clips are served locally from /public/videos. For production, set
+// NEXT_PUBLIC_MEDIA_BASE_URL to an Azure Blob/Front Door (CDN) base and the same
+// paths are served from there instead — no code change needed.
+const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_BASE_URL ?? "").replace(/\/$/, "");
+const clipUrl = (path: string) => `${MEDIA_BASE}${path}`;
 
 const CARDS: Card[] = [
-  { poster: "/assets/imgImage3.png", cap: "Multiple Systems. One Tool.", video: "31985719" },
-  { poster: "/assets/imgImage4.png", cap: "Pay Per Use", video: "29382657" },
-  { poster: "/assets/imgImage5.png", cap: "Expert-Level Diagnostics. Made Simple.", video: "37747582" },
-  { poster: "/assets/imgImage6.png", cap: "Diagnose Faster. Keep Trucks Moving.", video: "37732837" },
-  { poster: "/assets/imgImage7.png", cap: "Expert Diagnostics. Without the Learning Curve.", video: "37551397" },
-  { poster: "/assets/imgImage6.png", cap: "Clear Reports. Faster Decisions.", video: "8134381" },
+  { poster: "/assets/imgImage3.png", cap: "Multiple Systems. One Tool.", clip: "/videos/use-case-1.mp4" },
+  { poster: "/assets/imgImage4.png", cap: "Pay Per Use", clip: "/videos/use-case-2.mp4" },
+  { poster: "/assets/imgImage5.png", cap: "Expert-Level Diagnostics. Made Simple.", clip: "/videos/use-case-3.mp4" },
+  { poster: "/assets/imgImage6.png", cap: "Diagnose Faster. Keep Trucks Moving.", clip: "/videos/use-case-4.mp4" },
+  { poster: "/assets/imgImage7.png", cap: "Expert Diagnostics. Without the Learning Curve.", clip: "/videos/use-case-5.mp4" },
+  { poster: "/assets/imgImage6.png", cap: "Clear Reports. Faster Decisions.", clip: "/videos/use-case-6.mp4" },
 ];
-
-function pexelsSources(id: string): string[] {
-  // The /download/ URL 302-redirects to the real CDN file (the file id differs
-  // from the video-page id, so hand-constructed videos.pexels.com URLs 403).
-  return [`https://www.pexels.com/download/video/${id}/`];
-}
 
 export default function UseCases() {
   const [playing, setPlaying] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function UseCases() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   useMarqueeScroll(marqueeRef, { direction: 1, paused: playing !== null });
 
-  function play(key: string, id: string) {
+  function play(key: string, clip: string) {
     // stop any other playing video
     Object.entries(videoRefs.current).forEach(([k, v]) => {
       if (k !== key && v) v.pause();
@@ -69,29 +69,15 @@ export default function UseCases() {
       v.addEventListener("webkitendfullscreen", reset, { once: true });
     }
 
-    const sources = pexelsSources(id);
-    let idx = 0;
-    const tryPlay = () => {
-      if (idx >= sources.length) {
-        setPlaying(null);
-        return;
-      }
-      v.src = sources[idx++];
-      v.load();
-      const onErr = () => {
-        v.removeEventListener("error", onErr);
-        tryPlay();
-      };
-      v.addEventListener("error", onErr, { once: true });
-      const p = v.play();
-      if (p && typeof p.catch === "function") {
-        p.catch(() => {
-          v.removeEventListener("error", onErr);
-          tryPlay();
-        });
-      }
+    v.src = clipUrl(clip);
+    v.load();
+    const onErr = () => {
+      v.removeEventListener("error", onErr);
+      setPlaying(null);
     };
-    tryPlay();
+    v.addEventListener("error", onErr, { once: true });
+    const p = v.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
   }
 
   const renderCards = (copy: number, ariaHidden: boolean) =>
@@ -121,7 +107,7 @@ export default function UseCases() {
                 type="button"
                 aria-label="Play video"
                 tabIndex={ariaHidden ? -1 : 0}
-                onClick={() => play(key, c.video)}
+                onClick={() => play(key, c.clip)}
               >
                 <img className="tri" src="/assets/imgBoxiconsPlayFilled.svg" alt="" />
               </button>

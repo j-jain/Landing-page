@@ -447,91 +447,27 @@ img {
   display: none !important;
 }
 
-/* functional reCAPTCHA-style checkbox (no image) */
-.captcha {
-  background: #1a2132;
-  border: 1px solid #626262;
-  border-radius: 6px;
-  height: 64px;
+/* Google reCAPTCHA v2 widget wrapper */
+.recaptcha {
+  min-height: 78px;
+}
+/* reserve the iframe's footprint so there's no layout shift while it loads */
+.g-recaptcha-wrap {
+  min-height: 78px;
+}
+/* dev placeholder shown when no NEXT_PUBLIC_RECAPTCHA_SITE_KEY is set */
+.recaptcha--disabled {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 12px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.captcha:focus-visible {
-  outline: 2px solid var(--red);
-  outline-offset: 2px;
-}
-.cap-box {
-  width: 25px;
-  height: 25px;
-  flex: 0 0 auto;
-  position: relative;
-  background: transparent;
-  border: 2px solid #b4b4b4;
-  border-radius: 2px;
-  transition: border-color 0.15s;
-}
-.captcha.is-loading .cap-box {
-  background: transparent;
-  border-radius: 50%;
-  border-width: 3px;
-  border-color: #4b9ae6 rgba(75, 154, 230, 0.25) rgba(75, 154, 230, 0.25)
-    rgba(75, 154, 230, 0.25);
-  animation: capspin 0.7s linear infinite;
-}
-@keyframes capspin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.captcha.is-checked .cap-box {
-  background: var(--red);
-  border-color: var(--red);
-}
-.captcha.is-checked .cap-box::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: center / 14px 11px no-repeat
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 11'%3E%3Cpath fill='%23fff' d='M5.2 10.4 0 5.2 1.4 3.8l3.8 3.8L12.6.2 14 1.6z'/%3E%3C/svg%3E");
-}
-.captcha .lbl {
-  flex: 1;
+  min-height: 64px;
+  padding: 0 14px;
+  border: 1px dashed #626262;
+  border-radius: 6px;
+  background: #1a2132;
   font-family: var(--font-proxima);
   font-weight: 300;
-  font-size: 16px;
-  color: #fff;
-}
-.cap-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  flex: 0 0 auto;
+  font-size: 13px;
   color: #9aa0a6;
-}
-.cap-brand__mark {
-  font-size: 0;
-  line-height: 0;
-}
-.cap-brand__mark::before {
-  content: "\27F3";
-  font-size: 24px;
-  line-height: 1;
-  color: #5b9bd5;
-}
-.cap-brand__name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #cfcfcf;
-  letter-spacing: 0.2px;
-}
-.cap-brand__links {
-  font-size: 9px;
 }
 
 /* policy checkbox (real toggle, no image) */
@@ -995,6 +931,8 @@ img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* portrait head-shots: bias the crop to the top so the face fills the circle */
+  object-position: center top;
   display: block;
 }
 .testi-card__quote {
@@ -1162,6 +1100,184 @@ img {
 .cta__btn:hover .cta__btn__icon-hover,
 .cta__btn:focus-visible .cta__btn__icon-hover {
   opacity: 1;
+}
+/* chevron flips when the contact panel is open */
+.cta__btn__icon {
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.cta__btn.is-open .cta__btn__icon {
+  transform: rotate(180deg);
+}
+
+/* ---- Connect with us: accordion panel + contact form ---- */
+.cta__panel {
+  width: min(627.35px, 100%);
+  animation: ctaPanelIn 0.35s ease both;
+}
+@keyframes ctaPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cf {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 18px;
+  padding: 24px;
+  margin-top: 18px;
+  text-align: left;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+.cf__heading {
+  font-family: var(--font-denso);
+  font-weight: 300;
+  font-size: 22px;
+  color: #111;
+  margin-bottom: 16px;
+}
+.cf__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.cf__row--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.cf__field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+.cf__label {
+  font-family: var(--font-proxima);
+  font-weight: 600;
+  font-size: 12px;
+  color: #444;
+  margin-bottom: 5px;
+}
+.cf__inp {
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: 14px;
+  color: #111;
+  background: #f7f7f8;
+  border: 1px solid #d8d8d8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.cf__inp:focus,
+.cf__inp.invalid {
+  border-color: var(--red);
+}
+.cf__inp::placeholder {
+  color: #9aa0a6;
+}
+.cf__select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.cf__textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+.cf__err {
+  font-family: var(--font-proxima);
+  font-size: 11px;
+  color: var(--red);
+  min-height: 14px;
+  margin-top: 3px;
+  visibility: hidden;
+}
+.cf__err.show {
+  visibility: visible;
+}
+.cf__err--submit {
+  margin-top: 8px;
+}
+.cf__terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 6px;
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: 13px;
+  color: #555;
+}
+.cf__terms input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+  accent-color: var(--red);
+}
+.cf__terms a {
+  color: var(--red);
+  text-decoration: underline;
+}
+.cf__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+.cf__btn {
+  font-family: var(--font-denso);
+  font-weight: 300;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 11px 28px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+.cf__btn--primary {
+  background: var(--grad-linear);
+  color: #fff;
+}
+.cf__btn--primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.cf__btn--ghost {
+  background: transparent;
+  border-color: #c9c9c9;
+  color: #333;
+}
+.cf--done {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 18px;
+  padding: 28px 24px;
+  margin-top: 18px;
+  text-align: center;
+}
+.cf--done strong {
+  display: block;
+  font-family: var(--font-denso);
+  font-weight: 300;
+  font-size: 22px;
+  color: #111;
+  margin-bottom: 6px;
+}
+.cf--done p {
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 16px;
+}
+@media (max-width: 640px) {
+  .cf__row,
+  .cf__row--3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================================================
@@ -1847,9 +1963,8 @@ img {
 .uc-card__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; touch-action: pan-x pan-y; }
 /* let a swipe over the (paused) video pan the row; on touch it plays fullscreen */
 .uc-card__video { touch-action: pan-x pan-y; }
-.tcard { touch-action: pan-x pan-y; }
 
-/* ---- Testimonials: 240x400 image cards, hover-video, hybrid auto/manual scroll ---- */
+/* ---- Testimonials: 240-wide hover cards (quote -> photo), hybrid auto/manual scroll ---- */
 .testi-marquee {
   width: 100%;
   overflow-x: auto;
@@ -1862,68 +1977,12 @@ img {
 .testi-marquee::-webkit-scrollbar { display: none; }
 .testi-marquee.is-grabbing { cursor: grabbing; }
 .testi-marquee__track { display: flex; width: max-content; }
-.tcard {
-  position: relative;
+/* size the (Swiper-designed) testi-card as a fixed-width slide in the scroll row */
+.testi-marquee__track .testi-card {
   width: 240px;
-  height: 400px;
   flex: 0 0 auto;
   margin-right: 40px;
-  border-radius: 30px;
-  overflow: hidden;
-  background: #111;
-}
-.tcard__poster,
-.tcard__video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
   touch-action: pan-x pan-y;
-}
-/* hover-only layers: never capture touch (so a phone swipe pans the row) */
-.tcard__video {
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
-}
-.tcard:hover .tcard__video { opacity: 1; }
-.tcard__overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px 18px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.88) 100%);
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
-}
-.tcard:hover .tcard__overlay { opacity: 1; }
-.tcard__quote {
-  font-family: var(--font-proxima);
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 1.45;
-  color: #fff;
-  margin: 0;
-}
-.tcard__name {
-  font-family: var(--font-proxima);
-  font-weight: 600;
-  font-size: 14px;
-  color: #fff;
-  margin: 8px 0 0;
-}
-.tcard__role {
-  font-family: var(--font-proxima);
-  font-weight: 300;
-  font-size: 11px;
-  color: #d8d8d8;
-  margin: 2px 0 0;
 }
 @media (prefers-reduced-motion: reduce) {
   .testi-marquee { overflow-x: auto; }
@@ -2018,10 +2077,8 @@ img {
 /* Use Cases & Testimonials: smaller cards so they fit a phone */
 @media (max-width: 640px) {
   .usecases .uc-card { width: min(78vw, 302px); margin-right: 32px; }
-  .tcard {
+  .testi-marquee__track .testi-card {
     width: min(64vw, 240px);
-    height: auto;
-    aspect-ratio: 240 / 400;
     margin-right: 24px;
   }
 }

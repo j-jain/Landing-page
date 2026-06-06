@@ -1,0 +1,98 @@
+DENSO SENSE — BUILD MANUAL & TO-DO CHECKLIST
+============================================
+A reusable playbook for "recreate a Figma design pixel-perfect as a Next.js site,
+push to GitHub, deploy." Follow top to bottom. Tick the [ ] boxes.
+
+--------------------------------------------------------------------------------
+PHASE 0 — SCOPE & SOURCE OF TRUTH (do this BEFORE writing code)
+--------------------------------------------------------------------------------
+[ ] Confirm the ONE authoritative Figma file + node id. (We lost time building from a
+    "Copy" file first, then switching. Always nail the real file up front.)
+[ ] Pull specs: get_metadata (structure), get_design_context (code + asset URLs + screenshot),
+    get_variable_defs (tokens), get_screenshot per section. Save section Y-positions.
+[ ] List every section top-to-bottom and the exact ORDER.
+[ ] Inventory assets: images, SVGs, fonts, videos. Note which text is baked INTO images
+    (e.g. posters) vs. real text.
+[ ] Decide & write down: styling approach (we used ported global CSS), responsive scope
+    (desktop pixel-perfect + mobile reflow), content source where Figma has placeholders.
+[ ] Decide hosting target early — it changes the build (static export vs full Next.js).
+    Full Next.js (with API routes) runs on Vercel and Azure App Service/Container Apps.
+    Azure Static Web Apps needs static export + a separate Azure Function for any API.
+
+--------------------------------------------------------------------------------
+PHASE 1 — SCAFFOLD
+--------------------------------------------------------------------------------
+[ ] Create the app OUTSIDE any cloud-synced folder (NOT OneDrive/Dropbox). Use e.g. C:\dev\<name>.
+[ ] Next.js 14 App Router + TypeScript. Files: package.json, next.config.mjs, tsconfig.json
+    (with "@/*" path alias), next-env.d.ts, .gitignore (ignore /node_modules, /.next).
+[ ] npm install. Confirm node_modules/.bin/next exists (a partial install = "next not recognized").
+[ ] Copy fonts -> public/fonts, assets -> public/assets. Re-declare @font-face in globals.css
+    with /fonts/... absolute paths (public/ is served at the web root).
+
+--------------------------------------------------------------------------------
+PHASE 2 — GLOBAL CSS + COMPONENTS
+--------------------------------------------------------------------------------
+[ ] Port the design system to app/globals.css: :root variables, gradients, resets, layout,
+    fonts. Fix url() paths to /fonts and /assets.
+[ ] app/layout.tsx: <html lang>, import globals.css, metadata (title), and a `viewport` export
+    ({ width:'device-width', initialScale:1 }).
+[ ] app/page.tsx: compose sections in the exact Figma order.
+[ ] One component per section under /components. Static sections can be server components;
+    anything interactive needs "use client".
+[ ] Match Figma EXACTLY: text, colors, font sizes, spacing, line-heights. Where the design
+    shows placeholder text, reproduce it unless told otherwise.
+
+--------------------------------------------------------------------------------
+PHASE 3 — INTERACTIVITY
+--------------------------------------------------------------------------------
+[ ] Carousels / auto-scroll rows: prefer a small custom hook over a heavy lib if you need
+    "auto-scroll + manual drag/swipe". See lib/useMarqueeScroll.ts (rAF advance + wrap +
+    pause-on-interaction/hover + drag). Render TWO copies of the items for a seamless loop.
+[ ] Accordions: state-driven (single-open category, independent question toggles). Decide the
+    DEFAULT open/closed state and make it explicit.
+[ ] Forms: client validation + POST to an API route; submitting/disabled + error states.
+[ ] Video: decide desktop (inline) vs mobile (fullscreen) behavior up front.
+
+--------------------------------------------------------------------------------
+PHASE 4 — RESPONSIVE / MOBILE (keep desktop untouched)
+--------------------------------------------------------------------------------
+[ ] Put ALL mobile rules under max-width media queries so desktop (>=1280) is unchanged.
+[ ] Pinned/scroll-jacking sections: DISABLE the pin on touch/small screens (matchMedia) and
+    fall back to a native swipe carousel (overflow-x:auto + scroll-snap).
+[ ] touch-action: use "pan-x pan-y" (or default auto) on horizontal scrollers so a VERTICAL
+    swipe still scrolls the page. NEVER "pan-x" alone — it freezes vertical page scroll.
+[ ] Overlay/hover-only layers (videos, gradients): pointer-events:none so they don't eat touches.
+[ ] Wide tables: wrap in an overflow-x:auto container on narrow screens.
+[ ] Check: document.documentElement.scrollWidth <= window.innerWidth (no horizontal overflow).
+
+--------------------------------------------------------------------------------
+PHASE 5 — VERIFY
+--------------------------------------------------------------------------------
+[ ] Run a STABLE server (prefer a production build/start, or dev from the real folder).
+[ ] Screenshot each section at 1440px and diff against the Figma node screenshot.
+[ ] Console + network: zero errors, no asset/video 404s.
+[ ] Exercise every interaction (form submit, accordion, carousel drag, video play, hover).
+[ ] Resize to 390 / 360 / 768 / 1280 and re-check. For scripted scroll checks use
+    scrollTo({behavior:'instant'}) so reads are deterministic (smooth scrolling makes reads lie).
+[ ] Real touch behavior (fullscreen, swipe) is best confirmed on a real phone / deployed preview.
+
+--------------------------------------------------------------------------------
+PHASE 6 — SHIP
+--------------------------------------------------------------------------------
+[ ] git init -b main; .gitignore correct; initial commit; push to GitHub (private for client work).
+[ ] Add CI (.github/workflows/ci.yml: npm ci + next build).
+[ ] Connect the repo to the host (Vercel / Azure) via its dashboard — it auto-generates the
+    deploy workflow and redeploys on every push to main.
+[ ] Replace any third-party/placeholder runtime dependencies (e.g. stock videos) with
+    first-party assets on the approved host/CDN before production.
+
+--------------------------------------------------------------------------------
+PRE-FLIGHT GOTCHA CHECKLIST (the cheap checks that prevent the expensive bugs)
+--------------------------------------------------------------------------------
+[ ] Project is NOT in a synced folder.
+[ ] No "overflow-x: hidden" on a tall page wrapper if you use position:sticky -> use "clip".
+[ ] No "touch-action: pan-x" alone on mobile scrollers -> use "pan-x pan-y".
+[ ] Flex children that must keep their size have "flex: 0 0 auto".
+[ ] Any constructed CDN/media URL was actually curl-tested (not assumed).
+[ ] Hover-only effects have a sensible mobile fallback and don't block touch.
+[ ] Default UI states (which accordion/tab is open) are intentional and explicit.

@@ -1,0 +1,85 @@
+DENSO SENSE — MISTAKES MADE & LESSONS LEARNED
+=============================================
+Each entry: what went wrong -> root cause -> fix -> rule for next time.
+These are the time-sinks; read this file before starting a similar project.
+
+1. PROJECT INSIDE ONEDRIVE  (biggest time-sink)
+   Symptom: dev server reload-looped (page re-requested endlessly, never hydrated, nothing
+     interactive); production "next start" 500'd with "Cannot find module './819.js'"; dev server
+     randomly "dropped".
+   Cause: OneDrive continuously touches/locks files in the folder. Next's file-watcher sees
+     phantom changes -> Fast Refresh full-reload loop; OneDrive also removed/locked a built .next
+     chunk -> missing-module 500.
+   Fix: moved the project to C:\dev\denso-next (outside the synced tree). Build clean, dev stable.
+   RULE: never put a Next.js (or any node) project in OneDrive/Dropbox/Google Drive. If you must,
+     exclude node_modules and .next from sync. A junction back into the synced folder keeps tool
+     paths working but the watcher won't follow it (so run dev from the real path).
+
+2. "touch-action: pan-x" FROZE VERTICAL SCROLL ON MOBILE
+   Symptom: on a phone, a finger on a row/video couldn't scroll the page at all (nor the row).
+   Cause: "pan-x" enables ONLY horizontal panning and DISABLES vertical. Gestures starting on the
+     element could no longer scroll the page vertically.
+   Fix: "touch-action: pan-x pan-y" (allow both; horizontal scrolls the row, vertical bubbles to
+     the page). Also set hover-only video/overlay layers to pointer-events:none.
+   RULE: for a horizontal scroller that must not trap the page, use "pan-x pan-y" (or auto),
+     never "pan-x" alone.
+
+3. ".canvas { overflow-x: hidden }" BROKE PAGE SCROLL + STICKY PIN
+   Symptom: couldn't scroll past the RTBS section to Testimonials/CTA/FAQ/Footer; sticky pin
+     behaved oddly; scrollTo clamped at ~4097px though the page was ~6900px.
+   Cause: "overflow-x: hidden" forces the other axis to compute as "overflow-y: auto", turning the
+     wrapper into its OWN scroll container that fights window scrolling and position:sticky.
+   Fix: "overflow-x: clip" — clips horizontal overflow WITHOUT creating a scroll container; kept
+     the document as the single scroller. Added "overflow-anchor: none" to avoid reflow jumps.
+   RULE: to hide horizontal overflow on a tall/sticky page, use "overflow-x: clip", not "hidden".
+
+4. PEXELS VIDEO URLs 403'd
+   Symptom: clicking play set a src but the video never loaded (networkState NO_SOURCE).
+   Cause: constructed "videos.pexels.com/video-files/{id}/{id}-hd_...mp4" — the real CDN file id
+     differs from the video-page id, so those URLs 403.
+   Fix: use "https://www.pexels.com/download/video/{id}/", which 302-redirects to the real file.
+   RULE: curl-test any constructed media/CDN URL before trusting it; prefer the provider's
+     canonical/redirecting URL.
+
+5. RTBS FLEX TRACK COLLAPSED
+   Symptom: the scroll-pinned RTBS pan barely moved; cards squished to ~712px instead of ~2700px.
+   Cause: the track was a flex CHILD of the flex pin and shrank (flex-shrink defaults to 1).
+   Fix: track + cards "flex: 0 0 auto"; track "width: max-content".
+   RULE: flex items shrink by default; pin "flex: 0 0 auto" on anything that must keep its size.
+
+6. BUILT FROM THE WRONG FIGMA FILE FIRST
+   Symptom: had to redo section order + hero copy + testimonials after switching files.
+   Cause: started from a "Copy" file before the authoritative "Desktop - 4" was confirmed.
+   RULE: confirm the single source-of-truth file/node before building. (Note: a third Figma file
+     was also inaccessible to the MCP integration — confirm access early too.)
+
+7. VERIFYING IN A BROKEN/STALE PREVIEW
+   Symptom: scroll/interaction checks gave contradictory results; elements "missing"; values stale.
+   Causes: (a) the OneDrive reload loop meant hydration never finished; (b) "scroll-behavior:
+     smooth" made scrollY reads catch mid-animation; (c) a dev server reached via the junction
+     served STALE CSS because its watcher didn't follow the junction.
+   Fix: verify on a STABLE server (production build/start, or dev from the real folder); use
+     scrollTo({behavior:'instant'}) for deterministic reads; trust the on-disk source + a clean
+     "next build" over a flaky live preview.
+   RULE: if the preview behaves impossibly, suspect the environment (server/watcher), not just code.
+
+8. HOVER-ONLY LAYERS CAPTURED TOUCH
+   Symptom: swiping over testimonial cards (which have an absolute hover-video + overlay) stalled.
+   Cause: those layers sit over the poster and intercepted the touch though they're desktop-only.
+   Fix: pointer-events:none on the hover video + overlay (the hover is driven off the card element,
+     so desktop hover still works).
+   RULE: desktop hover affordances must be pointer-events:none (or removed) on touch.
+
+9. STATIC EXPORT vs API ROUTE CONFUSION
+   Note: "output: 'export'" (pure static, for Azure Static Web Apps) cannot run a Next API route.
+   Decision: kept a FULL Next.js app so /api/lead works and it deploys to Vercel and Azure App
+     Service/Container Apps unchanged. Only go static-export if the host requires it AND move the
+     API to a separate function.
+   RULE: pick the host first; it dictates whether you can use API routes inline.
+
+10. TOOLING FRICTION (smaller ones)
+   - "gh" CLI wasn't installed; device-login is interactive. For a quick push, set the git remote
+     and push with the user's cached credentials, or install gh + "gh auth login".
+   - Windows line-endings: git warns "LF will be replaced by CRLF" — harmless.
+   - The preview tool requires its launch.json "cwd" to be a relative path INSIDE the workspace
+     root (absolute paths are rejected) — hence the junction.

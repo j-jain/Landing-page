@@ -27,6 +27,24 @@ lib/          # useMarqueeScroll hook
 public/       # fonts, assets (images, svgs, posters)
 ```
 
+## reCAPTCHA (Book-a-Demo form)
+The lead form uses **Google reCAPTCHA v2** ("I'm not a robot"). The integration is
+fully built — it just needs keys:
+
+1. Create a **v2 "I'm not a robot"** key pair at <https://www.google.com/recaptcha/admin>
+   (add your production domain and `localhost`).
+2. Copy `.env.example` → `.env.local` (gitignored) and fill in:
+   ```
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...   # public, sent to the browser
+   RECAPTCHA_SECRET_KEY=...             # server-only, verifies tokens
+   ```
+3. Restart `npm run dev`.
+
+**No keys set?** The form still works — the checkbox is skipped (a muted dev
+placeholder shows) and the server skips verification. It enforces automatically
+once both keys are present. Module: `components/Recaptcha.tsx` (client widget) +
+`lib/recaptcha.ts` (server verification, called from `app/api/lead/route.ts`).
+
 ## Deploying to Azure
 Intended to deploy to **Microsoft Azure** (all production runtime services on Azure):
 - **Azure Static Web Apps** (recommended) or **Azure App Service (Linux, Node 20)** — connect this GitHub repo; build command `npm run build`.
