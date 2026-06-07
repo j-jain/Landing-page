@@ -2185,29 +2185,40 @@ img {
 }
 
 /* =========================================================
-   LAPTOP LOCK (>=992px): exact Figma sizes + positions, identical across
-   13"-17" laptops. Placed last so it wins over base + max-width rules.
+   LAPTOP SCALE (>=992px): the hero is scaled 1:1 from the 1440x856 Figma
+   using vw units, so the text SIZE and its alignment over the truck match the
+   design at ANY laptop width (1vw = 14.4px at the 1440 design width).
+   Navbar logos hug the edges like Figma instead of a centered band.
+   Placed last so it wins over base + max-width rules.
    ========================================================= */
 @media (min-width: 992px) {
-  /* navbar: DENSO ~40px from the left, SENSE ~28px from the right (Figma) */
-  .nav { padding-left: 40px; padding-right: 28px; }
+  /* navbar: logos near the edges (drop the centered 1372px band); gutters
+     scale with width like Figma (~41/27 at 1440) */
+  .nav { padding-left: 2.778vw; padding-right: 1.944vw; }
+  .nav__inner { max-width: none; }
 
-  /* hero text: exact Figma sizes + vertical positions in the fixed 856px hero.
-     kicker box 97px (text centered ~y104) + 42px gap => title starts at y219;
-     title 4 lines @1.05 => ~y488; 48px gap => list at ~y536. */
-  .hero__left { padding: 80px 72px; gap: 48px; }
-  .hero__headgroup { gap: 42px; }
+  /* hero = the Figma 1440x856 frame scaled by viewport width */
+  .hero { min-height: 59.444vw; }
+  .hero__left { padding: 5.556vw 5vw; gap: 3.333vw; }
+  .hero__headgroup { gap: 2.917vw; }
   .hero__kicker {
-    font-size: 48px;
-    min-height: 97px;
+    font-size: 3.333vw;          /* 48px @1440 */
+    letter-spacing: -0.278vw;    /* -4px @1440 */
+    min-height: 6.736vw;         /* 97px box -> kicker centered, title starts at the Figma y */
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  .hero__title { font-size: 64px; line-height: 1.05; }
-  .hero__li span { font-size: 20px; }
+  .hero__title {
+    font-size: 4.444vw;          /* 64px @1440 */
+    letter-spacing: -0.278vw;
+    line-height: 1.05;
+  }
+  .hero__li { padding: 1.667vw 0; gap: 1.111vw; }   /* 24px / 16px @1440 */
+  .hero__li img { width: 1.667vw; height: 1.667vw; } /* 24px @1440 */
+  .hero__li span { font-size: 1.389vw; }             /* 20px @1440 */
 
-  /* CTA band: lock to identical absolute size on every laptop */
+  /* CTA band: still locked (fixed) per the earlier request */
   .cta { padding: 48px var(--pad); }
   .cta__inner { gap: 28px; }
   .cta__title { font-size: 48px; }
