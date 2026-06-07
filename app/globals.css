@@ -1774,6 +1774,21 @@ img {
    RESPONSIVE BREAKPOINTS
    ========================================================= */
 
+/* ---- Hero menu tab: when the hero stacks (<=991px), the desktop 44%-of-hero
+   rule drops the tab into the middle of the page and shifts it per screen size.
+   Pin it to a fixed offset beside the heading (identical on every phone) and
+   add a left gutter so the 36px tab sits in the margin like desktop, never
+   clipping the heading. Placed after all base hero rules so it wins. ---- */
+@media (max-width: 991px) {
+  .hero__menutab {
+    top: 230px;
+    transform: translateY(-50%);
+  }
+  .hero__left {
+    padding-left: 56px;
+  }
+}
+
 /* ---- Tablet (<=1080px) ---- */
 @media (max-width: 1080px) {
   /* hero stacks: text above, form below */
