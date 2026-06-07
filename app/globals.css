@@ -2183,3 +2183,32 @@ img {
   .faq-table th,
   .faq-table td { padding: 6px 8px; }
 }
+
+/* =========================================================
+   LAPTOP LOCK (>=992px): exact Figma sizes + positions, identical across
+   13"-17" laptops. Placed last so it wins over base + max-width rules.
+   ========================================================= */
+@media (min-width: 992px) {
+  /* navbar: DENSO ~40px from the left, SENSE ~28px from the right (Figma) */
+  .nav { padding-left: 40px; padding-right: 28px; }
+
+  /* hero text: exact Figma sizes + vertical positions in the fixed 856px hero.
+     kicker box 97px (text centered ~y104) + 42px gap => title starts at y219;
+     title 4 lines @1.05 => ~y488; 48px gap => list at ~y536. */
+  .hero__left { padding: 80px 72px; gap: 48px; }
+  .hero__headgroup { gap: 42px; }
+  .hero__kicker {
+    font-size: 48px;
+    min-height: 97px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero__title { font-size: 64px; line-height: 1.05; }
+  .hero__li span { font-size: 20px; }
+
+  /* CTA band: lock to identical absolute size on every laptop */
+  .cta { padding: 48px var(--pad); }
+  .cta__inner { gap: 28px; }
+  .cta__title { font-size: 48px; }
+}
