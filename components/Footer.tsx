@@ -40,18 +40,18 @@ export default function Footer() {
               </div>
 
               <div className="footer__social">
-                <a className="soc" href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <a className="soc" href="https://www.linkedin.com/company/@densosense" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                   <img className="circle" src="/assets/imgVector3.svg" alt="" />
                   <img className="glyph" src="/assets/imgGroup2.svg" alt="" style={{ width: "13.5px", height: "13.4px" }} />
                 </a>
-                <a className="soc" href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                <a className="soc" href="https://www.facebook.com/@densosense" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                   <img className="full" src="/assets/imgGroup3.svg" alt="" />
                 </a>
-                <a className="soc" href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <a className="soc" href="https://www.youtube.com/channel/UCsRkEOhNRhgqTU0-zfJh82g" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                   <img className="circle" src="/assets/imgVector3.svg" alt="" />
                   <img className="glyph" src="/assets/imgGroup4.svg" alt="" style={{ width: "17.7px", height: "12.6px" }} />
                 </a>
-                <a className="soc" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a className="soc" href="https://www.instagram.com/densosense?igsh=MW4zaTBvNjNzMHR4bg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <img className="full" src="/assets/imgGroup5.svg" alt="" />
                 </a>
               </div>

@@ -153,6 +153,19 @@
     #a5a5a5
   );
 
+  /* CONNECT WITH US pill border — exact Figma gradient (grey -> red -> navy) */
+  --grad-cta-border: linear-gradient(
+    90deg,
+    #a5a5a5 0%,
+    #d73030 31%,
+    #d02f30 38%,
+    #bd2e31 49%,
+    #9e2c32 62%,
+    #732934 76%,
+    #3d2636 92%,
+    #1d2438 100%
+  );
+
   --font-denso: "DENSO", "Helvetica Neue", Arial, sans-serif;
   --font-proxima: "Proxima Nova", "Helvetica Neue", Arial, sans-serif;
 
@@ -280,14 +293,53 @@ img {
   opacity: 0.3;
 }
 
+/* QA Denso_002: hero left-edge menu tab (Figma "Asset 2 2", 36x79 at left edge) */
+.hero__menutab {
+  position: absolute;
+  left: 0;
+  top: 44%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 36px;
+  height: 79px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: #000;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 4px 5.3px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero__menutab-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.hero__menutab-bars span {
+  display: block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  /* QA: bars use the red->blue->black brand gradient (was solid red) */
+  background-image: linear-gradient(90deg, #d12f30 0%, #9e2c32 30%, #1d2438 70%, #050505 100%);
+}
+.hero__menutab-bars span:nth-child(2) {
+  width: 12px;
+}
+
 .hero__left {
   position: relative;
   z-index: 1;
   flex: 1 1 420px;
-  padding: 80px var(--pad);
+  /* QA Denso_001: match Figma hero padding (72px at desktop) so the wording sits where the design shows it */
+  padding: 80px clamp(20px, 5vw, 72px);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* match Figma: top-aligned kicker+title with a fixed gap to the bullet list */
+  justify-content: flex-start;
   gap: clamp(32px, 4vw, 48px);
 }
 .hero__headgroup {
@@ -309,7 +361,7 @@ img {
   font-size: clamp(38px, 6vw, 64px);
   color: #fff;
   letter-spacing: -4px;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 .hero__list {
   width: min(655px, 100%);
@@ -1045,7 +1097,9 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(627.35px, 100%);
+  /* locked: identical absolute size on every laptop (13"-17", all > 991px) */
+  width: 627.35px;
+  max-width: 100%;
   min-height: 59.53px;
   padding: 0 26px 0 31px;
   position: relative;
@@ -1062,7 +1116,8 @@ img {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: var(--grad-linear);
+  /* colored gradient border — exact Figma orientation (grey -> red -> navy) */
+  background: var(--grad-cta-border);
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -1326,7 +1381,7 @@ img {
   width: min(1143px, 100%);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: clamp(40px, 6vw, 80px);
 }
 .faq__title {
@@ -1334,7 +1389,7 @@ img {
   font-weight: 300;
   font-size: clamp(38px, 6vw, 72px);
   color: #fff;
-  text-align: center;
+  text-align: left;
   letter-spacing: -0.5px;
   width: 100%;
 }
@@ -1461,7 +1516,7 @@ img {
   font-weight: 300;
   font-size: 15px;
   color: #a3a3a3;
-  text-align: center;
+  text-align: left;
   line-height: 24px;
   padding-top: 12px;
 }
@@ -1475,7 +1530,7 @@ img {
   font-weight: 300;
   font-size: 15px;
   color: #a3a3a3;
-  text-align: center;
+  text-align: left;
   line-height: 24px;
   width: 100%;
 }
@@ -1894,21 +1949,26 @@ img {
   }
 
   .faq {
-    padding-bottom: clamp(180px, 22vw, 120px);
+    /* QA Denso_012: modest bottom gap for the truck stick-up; footer sits
+       strictly AFTER the FAQ (no negative pull-up) so expanded content can't
+       collide with the footer/truck on mobile. */
+    padding-bottom: clamp(96px, 18vw, 140px);
   }
   .footer {
-    margin-top: -48px;
+    margin-top: 0;
   }
   .footer__truck {
-    width: min(62vw, 240px);
-    top: clamp(-56px, -18vw, -40px);
+    /* mobile: smaller + raised so it never overlaps the heading */
+    width: min(56vw, 210px);
+    top: clamp(-72px, -20vw, -56px);
   }
   .footer__panel {
     margin-top: 0;
     border-radius: 72px 72px 0 0;
   }
   .footer__inner {
-    padding: clamp(64px, 20vw, 96px) clamp(24px, 5vw, 32px)
+    /* extra top padding so "Sense The Future…" clears the truck stick-up */
+    padding: clamp(92px, 25vw, 116px) clamp(24px, 5vw, 32px)
       clamp(32px, 8vw, 44px);
   }
   .footer__contact .col p {
@@ -1977,7 +2037,7 @@ img {
 .uc-marquee::-webkit-scrollbar { display: none; }
 .uc-marquee.is-grabbing { cursor: grabbing; }
 .uc-marquee__track { display: flex; width: max-content; }
-.usecases .uc-card { width: 302px; flex: 0 0 auto; margin-right: 70px; gap: 32px; touch-action: pan-x pan-y; }
+.usecases .uc-card { width: 360px; flex: 0 0 auto; margin-right: 70px; gap: 32px; touch-action: pan-x pan-y; }
 .uc-card__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; touch-action: pan-x pan-y; }
 /* let a swipe over the (paused) video pan the row; on touch it plays fullscreen */
 .uc-card__video { touch-action: pan-x pan-y; }
@@ -2018,7 +2078,7 @@ img {
   text-decoration: underline;
 }
 .faq-table {
-  margin: 14px auto 0;
+  margin: 14px 0 0;
   border-collapse: collapse;
   width: min(100%, 760px);
   font-family: var(--font-proxima);
@@ -2031,7 +2091,7 @@ img {
 .faq-table td {
   border: 1px solid #444;
   padding: 8px 12px;
-  text-align: center;
+  text-align: left;
 }
 .faq-table th {
   font-weight: 700;
@@ -2094,7 +2154,7 @@ img {
 
 /* Use Cases & Testimonials: smaller cards so they fit a phone */
 @media (max-width: 640px) {
-  .usecases .uc-card { width: min(78vw, 302px); margin-right: 32px; }
+  .usecases .uc-card { width: min(82vw, 360px); margin-right: 32px; }
   .testi-marquee__track .testi-card {
     width: min(64vw, 240px);
     margin-right: 24px;

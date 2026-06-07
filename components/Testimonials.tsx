@@ -108,7 +108,7 @@ function TCard({
 export default function Testimonials() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const [openKey, setOpenKey] = useState<string | null>(null);
-  useMarqueeScroll(marqueeRef, { direction: -1 });
+  useMarqueeScroll(marqueeRef, { direction: 1 });
 
   const render = (copy: number, hidden: boolean) =>
     TESTIMONIALS.map((t, i) => {

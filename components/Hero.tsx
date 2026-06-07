@@ -70,6 +70,14 @@ export default function Hero() {
         <img src="/assets/imgFrame1000003076.jpg" alt="" />
       </div>
 
+      <button className="hero__menutab" type="button" aria-label="Open menu">
+        <span className="hero__menutab-bars" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+      </button>
+
       <div className="hero__left">
         <div className="hero__headgroup">
           <div className="hero__kicker">Stop guessing. Start earning.</div>
@@ -190,8 +198,22 @@ export default function Hero() {
                   <span className="chk" aria-hidden="true" />
                   <p>
                     By clicking the box, you agree to our{" "}
-                    <a href="#">Privacy Policy</a> and{" "}
-                    <a href="#">Terms of Service</a>.
+                    <a
+                      href="https://sense.denso.co.in/PrivacyPolicy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Privacy Policy
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="https://sense.denso.co.in/TermsOfServiceDiagnosticTool"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms of Service
+                    </a>
+                    .
                   </p>
                 </label>
                 <small className={`err${errors.agree ? " show" : ""}`}>

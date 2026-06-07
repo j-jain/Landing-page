@@ -87,7 +87,14 @@ const CATEGORIES: Category[] = [
         a: (
           <p>
             Please refer to our Application Coverage section. You can{" "}
-            <a href="#">click here</a> to view the application coverage.
+            <a
+              href="https://sense.denso.co.in/BrandsECUsDetails"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              click here
+            </a>{" "}
+            to view the application coverage.
           </p>
         ),
       },
