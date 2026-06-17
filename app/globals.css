@@ -265,7 +265,8 @@ img {
 .hero {
   position: relative;
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  /* form column is capped so the panel reads compact (was 1fr ≈ 625px) */
+  grid-template-columns: 1fr clamp(380px, 36vw, 500px);
   min-height: 856px;
   overflow: hidden;
 }
@@ -328,6 +329,152 @@ img {
 }
 .hero__menutab-bars span:nth-child(2) {
   width: 12px;
+}
+
+/* ===== Site menu: fixed left-edge tab + slide-in drawer ===== */
+html {
+  scroll-behavior: smooth;
+}
+section[id] {
+  scroll-margin-top: 16px;
+}
+.menu-tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  width: 36px;
+  height: 79px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: #000;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 4px 5.3px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.menu-tab:hover {
+  transform: translateY(-50%) translateX(2px);
+}
+.menu-tab.is-open {
+  opacity: 0;
+  pointer-events: none;
+}
+.menu-tab__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.menu-tab__bars span {
+  display: block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background-image: linear-gradient(90deg, #d12f30 0%, #9e2c32 30%, #1d2438 70%, #050505 100%);
+}
+.menu-tab__bars span:nth-child(2) {
+  width: 12px;
+}
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  visibility: hidden;
+  pointer-events: none;
+}
+.drawer.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+.drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.drawer.is-open .drawer__backdrop {
+  opacity: 1;
+}
+.drawer__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: min(320px, 84vw);
+  background: #0b0b0c;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  padding: 28px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+.drawer.is-open .drawer__panel {
+  transform: translateX(0);
+}
+.drawer__close {
+  align-self: flex-end;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.drawer__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.drawer__logo img {
+  width: 120px;
+  height: auto;
+  display: block;
+}
+.drawer__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.drawer__links a {
+  display: block;
+  padding: 12px 0;
+  font-family: var(--font-denso);
+  font-weight: 300;
+  font-size: 22px;
+  color: #f1f2f2;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: color 0.2s ease, padding-left 0.2s ease;
+}
+.drawer__links a:hover {
+  color: var(--red);
+  padding-left: 6px;
+}
+.drawer__links--legal {
+  margin-top: auto;
+}
+.drawer__links--legal a {
+  font-family: var(--font-proxima);
+  font-size: 14px;
+  color: #9aa0a6;
+  border-bottom: none;
+  padding: 6px 0;
+}
+.drawer__links--legal a:hover {
+  color: #fff;
 }
 
 .hero__left {
@@ -393,18 +540,19 @@ img {
 .hero__form {
   position: relative;
   z-index: 1;
-  flex: 0 1 641px;
+  width: 100%;
   background: #000;
-  padding: clamp(40px, 5vw, 80px) clamp(28px, 4vw, 64px);
+  /* smaller + top-aligned so the panel lines up with the "Stop guessing" kicker */
+  padding: clamp(48px, 5vw, 80px) clamp(24px, 2.6vw, 44px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 32px;
+  justify-content: flex-start;
+  gap: clamp(20px, 2.2vw, 28px);
 }
 .form__head {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
 }
 .form__title {
   font-family: var(--font-denso);
@@ -423,7 +571,7 @@ img {
 .form__fields {
   display: flex;
   flex-direction: column;
-  gap: clamp(22px, 3vw, 32px);
+  gap: clamp(16px, 2vw, 22px);
 }
 .field {
   display: flex;
@@ -571,7 +719,36 @@ img {
 }
 .policy p a {
   color: #fff;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* highlighted/underlined cue when the user submits without agreeing */
+.policy.invalid {
+  border-color: var(--red);
+  background: rgba(209, 47, 48, 0.08);
+}
+.policy.invalid .chk {
+  box-shadow: 0 0 0 2px rgba(209, 47, 48, 0.45);
+}
+.policy.invalid p a {
+  color: #ff8a8a;
+}
+/* consent line below the form fields (matches live ContactForm) */
+.form__consent {
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: 14px;
+  color: #cfcfcf;
+  line-height: 1.5;
+  margin: 0;
+}
+.form__consent a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.form__consent a:hover {
+  color: var(--red);
 }
 .btn-demo {
   background: var(--red);
@@ -701,12 +878,7 @@ img {
 .uc-card.is-playing .uc-card__play {
   display: none;
 }
-/* Desktop plays on hover, so the tap target is only needed on touch devices */
-@media (hover: hover) and (pointer: fine) {
-  .uc-card__play {
-    display: none;
-  }
-}
+/* Play button shows on every device — clips now play (with sound) on click, not hover. */
 .uc-card__play .tri {
   width: 35px;
   height: 35px;
@@ -2007,36 +2179,113 @@ img {
    Section order, scroll animations (RTBS pin-pan, marquees), hover-video.
    ========================================================= */
 
-/* RTBS: only the "Flexible Affordability" label is underlined */
-.rtbs-card__label { border-bottom: none; }
-.rtbs-card__label.u { border-bottom: 1px solid #fff; }
-.rtbs-card__heading { line-height: 40px; }
-
-/* ---- RTBS: scroll-pinned horizontal pan ---- */
-.rtbs { position: relative; background: #000; padding: 0; }
-.rtbs__pin {
-  position: sticky;
-  top: 0;
+/* ============================================================
+   RTBS — single-slide carousel (matches sense.denso.co.in).
+   One wide image at a time; ◀ red / ▶ white arrows cycle the
+   features; body copy reveals over the image on hover/tap.
+   These rules come after the older .rtbs-card* / .rtbs__pin block
+   above, which now targets markup that is no longer rendered.
+   ============================================================ */
+.rtbs {
+  position: relative;
+  background: #000;
+  padding: clamp(48px, 6vw, 88px) 0;
+}
+.rtbs__slide {
   width: 100%;
-  height: 100vh;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 var(--pad);
+  display: flex;
+  flex-direction: column;
+}
+.rtbs__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #1a0608;
+  cursor: pointer;
+}
+.rtbs__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+.rtbs__reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  padding: clamp(20px, 4vw, 48px);
+  background: linear-gradient(180deg, rgba(10, 3, 4, 0.9), rgba(10, 3, 4, 0.82));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  overflow-y: auto;
 }
-.rtbs__track {
+.rtbs__reveal p {
+  font-family: var(--font-proxima);
+  font-weight: 300;
+  font-size: clamp(14px, 1.5vw, 18px);
+  line-height: 1.55;
+  color: #f1f2f2;
+  margin: 0;
+  max-width: 760px;
+}
+.rtbs__media.is-open .rtbs__reveal { opacity: 1; visibility: visible; }
+@media (hover: hover) {
+  .rtbs__media:hover .rtbs__reveal { opacity: 1; visibility: visible; }
+}
+.rtbs__bar {
   display: flex;
+  align-items: center;
+  gap: clamp(12px, 1.5vw, 18px);
+  margin-top: clamp(18px, 2.5vw, 28px);
+}
+.rtbs__icon {
   flex: 0 0 auto;
-  width: max-content;
-  gap: 48px;
-  padding: 0 100px;
-  will-change: transform;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.rtbs__track .rtbs-card { flex: 0 0 auto; }
-@media (prefers-reduced-motion: reduce) {
-  .rtbs { height: auto !important; }
-  .rtbs__pin { position: static; height: auto; overflow-x: auto; padding: 56px 0; }
-  .rtbs__track { transform: none !important; }
+.rtbs__icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.rtbs__heading {
+  flex: 1;
+  font-family: var(--font-denso);
+  font-weight: 300;
+  font-size: clamp(20px, 2.4vw, 32px);
+  line-height: 1.12;
+  color: #fff;
+  letter-spacing: -0.5px;
 }
+.rtbs__nav {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+.rtbs__nav svg { width: 22px; height: 22px; }
+.rtbs__nav:active { transform: scale(0.94); }
+.rtbs__nav--prev { background: var(--red); color: #fff; }
+.rtbs__nav--next { background: #fff; color: #111; }
+.rtbs__nav--prev:hover { filter: brightness(1.08); }
+.rtbs__nav--next:hover { filter: brightness(0.92); }
+/* (the reference's "Know More" pill was removed from this section per request) */
 
 /* ---- Real Use Cases: poster + caption cards, hybrid auto/manual scroll ---- */
 .uc-marquee {
@@ -2057,30 +2306,55 @@ img {
 /* let a swipe over the (paused) video pan the row; on touch it plays fullscreen */
 .uc-card__video { touch-action: pan-x pan-y; }
 
-/* ---- Testimonials: 240-wide hover cards (quote -> photo), hybrid auto/manual scroll ---- */
-.testi-marquee {
+/* Use Cases: round arrow controls so users understand the row scrolls to more clips */
+.uc-carousel { position: relative; }
+.uc-nav {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.uc-nav:hover { background: #b3282a; }
+.uc-nav:active { transform: translateY(-50%) scale(0.94); }
+.uc-nav svg { width: 22px; height: 22px; }
+.uc-nav--prev { left: clamp(8px, 2vw, 28px); }
+.uc-nav--next { right: clamp(8px, 2vw, 28px); }
+
+/* ---- Testimonials: static, evenly-spaced responsive grid (all cards visible) ---- */
+.testi-grid {
+  display: grid;
+  /* 5 testimonials side-by-side on wide screens; wraps responsively below */
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(14px, 1.4vw, 24px);
+  padding: 0 var(--pad);
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
-  cursor: grab;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
-.testi-marquee::-webkit-scrollbar { display: none; }
-.testi-marquee.is-grabbing { cursor: grabbing; }
-.testi-marquee__track { display: flex; width: max-content; }
-/* size the (Swiper-designed) testi-card as a fixed-width slide in the scroll row */
-.testi-marquee__track .testi-card {
-  width: 240px;
-  flex: 0 0 auto;
-  margin-right: 40px;
-  touch-action: pan-x pan-y;
+@media (max-width: 1200px) {
+  .testi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
-@media (prefers-reduced-motion: reduce) {
-  .testi-marquee { overflow-x: auto; }
-  .testi-marquee__track { animation: none; }
+@media (max-width: 760px) {
+  .testi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .testi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Footer heading matches Desktop-4 (103px) */
@@ -2170,10 +2444,6 @@ img {
 /* Use Cases & Testimonials: smaller cards so they fit a phone */
 @media (max-width: 640px) {
   .usecases .uc-card { width: min(82vw, 360px); margin-right: 32px; }
-  .testi-marquee__track .testi-card {
-    width: min(64vw, 240px);
-    margin-right: 24px;
-  }
 }
 
 /* FAQ system-requirements table: scroll horizontally on narrow screens */

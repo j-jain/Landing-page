@@ -45,26 +45,8 @@ placeholder shows) and the server skips verification. It enforces automatically
 once both keys are present. Module: `components/Recaptcha.tsx` (client widget) +
 `lib/recaptcha.ts` (server verification, called from `app/api/lead/route.ts`).
 
-## Deploying to Azure
-Intended to deploy to **Microsoft Azure** (all production runtime services on Azure):
-- **Azure Static Web Apps** (recommended) or **Azure App Service (Linux, Node 20)** — connect this GitHub repo; build command `npm run build`.
-- **Azure Front Door** (CDN + WAF) in front; **Azure Blob Storage** for video/media; **Azure Functions** for the lead-capture API; **Application Insights** for monitoring.
-- Primary region: **Central India** (data residency for lead PII).
-
-Connecting the repo in the Azure portal auto-generates the GitHub Actions deploy workflow.
-
-## Local development (important)
-Run the project **directly from `C:\dev\denso-next`** — open *that* folder in your editor/terminal:
-
-```bash
-cd C:\dev\denso-next
-npm install
-npm run dev
-```
-
-Do **not** run it through the OneDrive path (`…\OneDrive\Desktop\Figma\Denso\denso-next`, which is a
-junction to this folder). Reasons:
-- **OneDrive syncing** of a Next.js project makes the dev server reload-loop and can corrupt the
-  `.next` build (missing-chunk 500s). Keeping the code outside the synced tree avoids that.
-- The Next.js **file-watcher doesn't reliably follow the junction**, so editing via the OneDrive
-  path won't hot-reload. Working in `C:\dev\denso-next` directly gives proper HMR.
+## Deployment
+Runs on **Microsoft Azure**. Build command `npm run build` (Node 20); serve with `npm run start`.
+All external services are wired through environment variables — see [`HANDOFF.md`](HANDOFF.md) and
+[`.env.example`](.env.example) for the full list and where each value is read. Everything degrades
+gracefully when unset.

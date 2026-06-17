@@ -13,14 +13,21 @@ DONE & ON main (https://github.com/j-jain/Landing-page)
 - CI build check; footer year 2026; FAQ starts fully collapsed.
 - Project relocated to C:\dev\denso-next (out of OneDrive) + junction at the old path.
 
+DECISION (handoff): host EVERYTHING on Azure -> Azure Static Web Apps (HYBRID Next.js). SWA's
+hybrid mode runs SSR + the /api/lead and /api/contact routes as-is (no porting to Functions).
+App-size cap is 250 MB, so videos stay external (Azure Blob). Vercel is interim staging only.
+See HANDOFF.md (dev team) and SHARE-WITH-AZURE-TEAM.md (owner) for the full handoff.
+
 IN PROGRESS / WAITING
 ---------------------
 - VERCEL (interim preview/staging): repo is ready to import. If already imported, it auto-deploys
   on each push to main. ACTION: import at vercel.com (Add New -> Project -> j-jain/Landing-page)
   if not done; then share the URL to verify the latest is live.
-- AZURE BLOB VIDEOS: still using Pexels placeholder clips (a non-Azure runtime dependency).
-  Waiting on the real DENSO videos to be uploaded to Azure Blob (Central India), ideally behind
-  Front Door. THEN swap the URLs in components/UseCases.tsx and components/Testimonials.tsx.
+- AZURE BLOB VIDEOS: the 6 REAL DENSO Use-Case clips (~182 MB) now exist locally at
+  public/videos/use-case-1..6.mp4 (gitignored). They resolve via NEXT_PUBLIC_MEDIA_BASE_URL in
+  components/UseCases.tsx. ACTION: upload them to Azure Blob (Central India, behind Front Door) and
+  set NEXT_PUBLIC_MEDIA_BASE_URL. (Testimonials use committed photos in public/assets/testi — no
+  external host needed.)
 
 OPEN TODOs (code)
 -----------------
@@ -28,17 +35,19 @@ OPEN TODOs (code)
     * Persist the lead (Azure Cosmos DB serverless or Table Storage, Central India).
     * Send email via Azure Communication Services (sales inbox + applicant).
     * Read secrets from env / Azure Key Vault.
-- "I'm not a robot" is a CSS mock (no real bot protection). For production use Azure-native /
-  Front Door WAF rather than Google reCAPTCHA (which would need a DENSO exception).
-- Testimonials & Use Cases use placeholder media (Pexels / a baked screenshot poster). Replace
-  with licensed DENSO footage/posters.
+- "I'm not a robot" is now REAL Google reCAPTCHA v2 (components/Recaptcha.tsx + lib/recaptcha.ts),
+  wired into /api/lead. It just needs keys (see HANDOFF.md S6); with no keys it bypasses gracefully.
+  (Front Door WAF can be added on top for extra protection if desired.)
+- Use Cases now use the real DENSO footage (public/videos, served via Blob in prod). Testimonials
+  use the real partner photos (public/assets/testi).
 - "click here" link in the Diagnostics FAQ answer points to "#": wire to the real coverage page.
 
 AZURE PRODUCTION ARCHITECTURE (proposed; DENSO mandate = all runtime on Azure)
 ------------------------------------------------------------------------------
-- Hosting: Azure App Service (Linux, Node 20) OR Azure Container Apps (full Next.js parity with
-  Vercel; the /api/lead route works as-is). [Azure Static Web Apps is possible but would require
-  static export + moving the API into an Azure Function.]
+- Hosting (CHOSEN): Azure Static Web Apps in HYBRID Next.js mode -> runs SSR + the /api/lead and
+  /api/contact routes as-is (managed backend; NO static export, NO porting the API to a Function).
+  250 MB app-size cap -> videos stay in Blob. (Azure App Service / Container Apps remain valid
+  alternatives if SWA's hybrid preview ever becomes a constraint.)
 - Edge/security: Azure Front Door (Premium for WAF) — CDN, TLS, routing, DDoS.
 - Media: Azure Blob Storage (Hot) for videos/posters, served via Front Door.
 - Data: Azure Cosmos DB (serverless) or Table Storage for leads.
@@ -59,6 +68,7 @@ HOW TO RUN / SHIP
 WHEN PICKING THIS BACK UP, START HERE
 -------------------------------------
 1. Get the Vercel preview URL up and confirm the latest commit is live.
-2. When the Azure Blob video URLs arrive, swap them into UseCases.tsx / Testimonials.tsx, push.
-3. Stand up the Azure host (App Service/Container Apps) + Front Door + Blob; finish /api/lead
-   (Cosmos/Table + ACS email); add the Azure deploy workflow.
+2. Upload the 6 videos to Azure Blob, then set NEXT_PUBLIC_MEDIA_BASE_URL (GitHub repo secret,
+   build-time) -> no code edit needed; UseCases.tsx already resolves <base>/<file>.
+3. Create the Azure Static Web App (hybrid Next.js) on repo j-jain/Landing-page@main + Front Door;
+   finish /api/lead + /api/contact (Cosmos/Table + ACS email). See HANDOFF.md for the full steps.

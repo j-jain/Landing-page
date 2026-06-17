@@ -9,8 +9,8 @@ export default function Hero() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [agree, setAgree] = useState(true);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [agree, setAgree] = useState(false);
   const recaptchaRef = useRef<RecaptchaHandle>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -25,7 +25,8 @@ export default function Hero() {
     if (!captchaToken)
       next.captcha = "Please confirm you are not a robot.";
     if (!agree)
-      next.agree = "Please accept the Privacy Policy and Terms of Service.";
+      next.agree =
+        "Please agree to the Terms, Privacy Policy and Privacy Notice.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -64,19 +65,11 @@ export default function Hero() {
   }
 
   return (
-    <section className="hero">
+    <section className="hero" id="home">
       <div className="hero__bg">
         <div className="grad" />
         <img src="/assets/imgFrame1000003076.jpg" alt="" />
       </div>
-
-      <button className="hero__menutab" type="button" aria-label="Open menu">
-        <span className="hero__menutab-bars" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-      </button>
 
       <div className="hero__left">
         <div className="hero__headgroup">
@@ -184,43 +177,54 @@ export default function Hero() {
                 </small>
               </div>
 
-              <div className="errwrap">
-                <label className="policy">
-                  <input
-                    type="checkbox"
-                    className="policy__cb"
-                    checked={agree}
-                    onChange={(e) => {
-                      setAgree(e.target.checked);
-                      if (errors.agree) setErrors((x) => ({ ...x, agree: "" }));
-                    }}
-                  />
-                  <span className="chk" aria-hidden="true" />
-                  <p>
-                    By clicking the box, you agree to our{" "}
-                    <a
-                      href="https://sense.denso.co.in/PrivacyPolicy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Privacy Policy
-                    </a>{" "}
-                    and{" "}
-                    <a
-                      href="https://sense.denso.co.in/TermsOfServiceDiagnosticTool"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Terms of Service
-                    </a>
-                    .
-                  </p>
-                </label>
-                <small className={`err${errors.agree ? " show" : ""}`}>
-                  {errors.agree}
-                </small>
-              </div>
             </div>
+            <label className={`policy${errors.agree ? " invalid" : ""}`}>
+              <input
+                type="checkbox"
+                className="policy__cb"
+                checked={agree}
+                onChange={(e) => {
+                  setAgree(e.target.checked);
+                  if (e.target.checked && errors.agree)
+                    setErrors((x) => ({ ...x, agree: "" }));
+                }}
+              />
+              <span className="chk" aria-hidden="true" />
+              <p>
+                I agree to DENSO&rsquo;s{" "}
+                <a
+                  href="https://sense.denso.co.in/TermsOfServiceDiagnosticTool/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Terms of Use
+                </a>
+                ,{" "}
+                <a
+                  href="https://sense.denso.co.in/PrivacyPolicy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Privacy Policy
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://sense.denso.co.in/PrivacyNotice"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Privacy Notice
+                </a>
+              </p>
+            </label>
+            {errors.agree && (
+              <small
+                className="err show"
+                style={{ position: "static", marginTop: 4 }}
+              >
+                {errors.agree}
+              </small>
+            )}
             <button className="btn-demo" type="submit" disabled={submitting}>
               {submitting ? "Sending…" : "Book a Demo"}
             </button>

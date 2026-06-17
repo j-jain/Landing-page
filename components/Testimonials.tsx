@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useMarqueeScroll } from "@/lib/useMarqueeScroll";
+import { useState } from "react";
 
 // Touch devices have no hover, so they toggle the photo/text by tapping the card.
 // Desktop keeps pure hover (this returns true there, so the tap toggle is skipped).
@@ -66,19 +65,16 @@ const TESTIMONIALS: Testimonial[] = [
 
 function TCard({
   t,
-  ariaHidden,
   open,
   onToggle,
 }: {
   t: Testimonial;
-  ariaHidden: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
   return (
     <article
       className={`testi-card${open ? " is-open" : ""}`}
-      aria-hidden={ariaHidden}
       onClick={() => {
         // touch only — desktop reveals on hover and ignores taps
         if (!finePointer()) onToggle();
@@ -106,39 +102,25 @@ function TCard({
 }
 
 export default function Testimonials() {
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const [openKey, setOpenKey] = useState<string | null>(null);
-  useMarqueeScroll(marqueeRef, { direction: 1 });
-
-  const render = (copy: number, hidden: boolean) =>
-    TESTIMONIALS.map((t, i) => {
-      const cardKey = `${copy}-${i}`;
-      return (
-        <TCard
-          key={cardKey}
-          t={t}
-          ariaHidden={hidden}
-          open={openKey === cardKey}
-          onToggle={() =>
-            setOpenKey((cur) => (cur === cardKey ? null : cardKey))
-          }
-        />
-      );
-    });
+  const [openKey, setOpenKey] = useState<number | null>(null);
 
   return (
-    <section className="testi">
+    <section className="testi" id="testimonials">
       <div className="testi__kicker">TESTIMONIALS</div>
       <h2 className="testi__title">
         Don&rsquo;t take our word for it.
         <br />
         Hear it from our Partners.
       </h2>
-      <div className="testi-marquee" ref={marqueeRef}>
-        <div className="testi-marquee__track">
-          {render(0, false)}
-          {render(1, true)}
-        </div>
+      <div className="testi-grid">
+        {TESTIMONIALS.slice(0, 5).map((t, i) => (
+          <TCard
+            key={i}
+            t={t}
+            open={openKey === i}
+            onToggle={() => setOpenKey((cur) => (cur === i ? null : i))}
+          />
+        ))}
       </div>
     </section>
   );

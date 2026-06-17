@@ -180,7 +180,7 @@ export default function Faq() {
   const [openQs, setOpenQs] = useState<Record<string, boolean>>({});
 
   return (
-    <section className="faq">
+    <section className="faq" id="faq">
       <div className="faq__container">
         <h2 className="faq__title">Frequently Asked Questions</h2>
         <div className="faq__list">

@@ -23,7 +23,7 @@ yarn-error.log*
 .env
 .env*.local
 
-# large media — served from an external host (Cloudflare R2), not committed
+# large media — served from Azure Blob Storage (via NEXT_PUBLIC_MEDIA_BASE_URL), not committed
 /public/videos/
 
 # typescript

@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import SiteMenu from "@/components/SiteMenu";
 import Hero from "@/components/Hero";
 import RtbsCards from "@/components/RtbsCards";
 import UseCases from "@/components/UseCases";
@@ -11,6 +12,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
+      <SiteMenu />
       <Hero />
       <UseCases />
       <RtbsCards />
